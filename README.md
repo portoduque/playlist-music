@@ -42,11 +42,11 @@ json_result = parse_json_file(Path("minhas-musicas.json"))
 
 ### Preparação segura da saída
 
-Antes de qualquer futuro download, o código já sanitiza nomes para Windows, bloqueia componentes de caminho inseguros, mantém o arquivo calculado dentro da pasta selecionada, evita colisões com sufixos determinísticos e identifica duplicatas preservando a primeira ocorrência. A etapa ainda não cria pastas nem baixa arquivos.
+O código sanitiza nomes para Windows, bloqueia componentes de caminho inseguros, mantém o arquivo calculado dentro da pasta selecionada, evita colisões com sufixos determinísticos e identifica duplicatas preservando a primeira ocorrência. Na execução unitária de uma faixa, só há sucesso depois que o MP3 final existe dentro dessa pasta; arquivos parciais não contam como concluídos e um arquivo existente não é sobrescrito.
 
-### Pré-checagem de ferramentas
+### Pré-checagem e execução unitária
 
-O código já verifica se o FFmpeg está disponível e se o módulo instalado do `yt-dlp` responde à consulta de versão. Também monta, sem executar, comandos de extração MP3 com qualidade `recommended` (padrão), `balanced` ou `compact`; cada argumento permanece separado, sem shell. A execução real continua pendente.
+O código verifica se o FFmpeg está disponível e se o módulo instalado do `yt-dlp` responde à consulta de versão. Também monta comandos de extração MP3 com qualidade `recommended` (padrão), `balanced` ou `compact`; cada argumento permanece separado, sem shell. Já existe um executor interno para uma faixa, com timeout, erro limitado, proteção contra sobrescrita e validação do arquivo final. A fila, a interface e a criação das playlists ainda não foram implementadas.
 
 ## Visão do MVP
 

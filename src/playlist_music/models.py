@@ -1,6 +1,7 @@
 """Normalized data used throughout playlist creation."""
 
 from dataclasses import dataclass
+from pathlib import Path
 
 
 @dataclass(frozen=True, slots=True)
@@ -34,3 +35,14 @@ class DeduplicationResult:
 
     unique_requests: list[TrackRequest]
     duplicate_requests: list[TrackRequest]
+
+
+@dataclass(frozen=True, slots=True)
+class AcquisitionResult:
+    """The final state of one requested track acquisition."""
+
+    request: TrackRequest
+    succeeded: bool
+    output_path: Path | None
+    source: str | None
+    error: str | None

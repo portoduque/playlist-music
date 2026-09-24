@@ -135,15 +135,15 @@
 **Description:** Executar uma única faixa com timeout, captura de erro limitada e validação da saída final.
 
 **Acceptance criteria:**
-- [ ] Sucesso retorna caminho final confinado e origem resolvida.
-- [ ] Exit code, timeout e ausência do arquivo final retornam falhas distintas.
-- [ ] Arquivo parcial nunca é informado como concluído e não sobrescreve destino válido.
+- [x] Sucesso retorna caminho final confinado e origem resolvida.
+- [x] Exit code, timeout e ausência do arquivo final retornam falhas distintas.
+- [x] Arquivo parcial nunca é informado como concluído e não sobrescreve destino válido.
 
 **Verification:**
-- [ ] `py -m pytest tests/test_single_download.py`
-- [ ] Usar somente runner/subprocesso falso; nenhuma rede.
-- [ ] `py -m pytest`
-- [ ] `py -m ruff check .`
+- [x] `py -m pytest tests/test_single_download.py`
+- [x] Usar somente runner/subprocesso falso; nenhuma rede.
+- [x] `py -m pytest`
+- [x] `py -m ruff check .`
 
 **Dependencies:** Task 6
 
