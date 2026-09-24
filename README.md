@@ -44,6 +44,10 @@ json_result = parse_json_file(Path("minhas-musicas.json"))
 
 Antes de qualquer futuro download, o código já sanitiza nomes para Windows, bloqueia componentes de caminho inseguros, mantém o arquivo calculado dentro da pasta selecionada, evita colisões com sufixos determinísticos e identifica duplicatas preservando a primeira ocorrência. A etapa ainda não cria pastas nem baixa arquivos.
 
+### Pré-checagem de ferramentas
+
+O código já verifica se o FFmpeg está disponível e se o módulo instalado do `yt-dlp` responde à consulta de versão. Também monta, sem executar, comandos de extração MP3 com qualidade `recommended` (padrão), `balanced` ou `compact`; cada argumento permanece separado, sem shell. A execução real continua pendente.
+
 ## Visão do MVP
 
 Quando concluído, o aplicativo permitirá importar listas por texto, `.txt`, `.csv`, `.m3u`, `.m3u8` e `.json`; processar apenas fontes compatíveis, autorizadas e sem DRM; e gerar uma pasta com MP3s, metadados quando disponíveis, `resultado.txt`, `.m3u` e `.m3u8` com caminhos relativos.

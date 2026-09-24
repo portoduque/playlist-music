@@ -114,15 +114,15 @@
 **Description:** Verificar yt-dlp/FFmpeg e construir argumentos de MP3 sem executar downloads.
 
 **Acceptance criteria:**
-- [ ] yt-dlp é referenciado pelo interpretador Python atual; FFmpeg é localizado explicitamente.
-- [ ] Qualidades suportadas mapeiam para argumentos definidos e testados.
-- [ ] URLs/consultas são argumentos literais, sem shell ou concatenação executável.
+- [x] yt-dlp é referenciado pelo interpretador Python atual; FFmpeg é localizado explicitamente.
+- [x] Qualidades suportadas mapeiam para argumentos definidos e testados.
+- [x] URLs/consultas são argumentos literais, sem shell ou concatenação executável.
 
 **Verification:**
-- [ ] `py -m pytest tests/test_commands.py`
-- [ ] Testar ferramenta presente, ausente, versão inválida e entrada com caracteres de shell.
-- [ ] `py -m pytest`
-- [ ] `py -m ruff check .`
+- [x] `py -m pytest tests/test_commands.py`
+- [x] Testar ferramenta presente, ausente, versão inválida e entrada com caracteres de shell.
+- [x] `py -m pytest`
+- [x] `py -m ruff check .`
 
 **Dependencies:** Task 5
 
