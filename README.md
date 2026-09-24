@@ -1,6 +1,6 @@
 # Playlist Music
 
-Aplicativo desktop local e open source para organizar listas de músicas de fontes autorizadas em uma pasta portátil com MP3s e playlists reproduzíveis. O MVP está em desenvolvimento; o pacote, as ferramentas de qualidade e a normalização inicial de texto já estão configurados, mas a criação de playlists ainda não foi implementada.
+Aplicativo desktop local e open source para organizar listas de músicas de fontes autorizadas em uma pasta portátil com MP3s e playlists reproduzíveis. O MVP está em desenvolvimento; o pacote, as ferramentas de qualidade e a importação inicial de texto e arquivos já estão configurados, mas a criação de playlists ainda não foi implementada.
 
 ## Estado atual
 
@@ -18,14 +18,18 @@ Playlist Music is not ready yet.
 
 O escopo planejado, a ordem de implementação e os critérios de aceite estão em [SPEC.md](SPEC.md), [tasks/plan.md](tasks/plan.md) e [tasks/todo.md](tasks/todo.md).
 
-### Importação de texto disponível para desenvolvimento
+### Importação disponível para desenvolvimento
 
-O código já normaliza uma consulta ou URL HTTP(S) por linha. Linhas vazias são ignoradas, a ordem e a linha de origem são preservadas, e URLs inválidas viram erros recuperáveis. A interface para usar esse recurso ainda será implementada.
+O código já normaliza consultas e URLs HTTP(S) por texto colado, `.txt` UTF-8 (com ou sem BOM) e `.csv`. Em CSV, `title`, `artist` e `url` podem aparecer em qualquer ordem; títulos entre aspas são aceitos. Linhas vazias são ignoradas, a ordem e a linha de origem são preservadas, e problemas por linha são recuperáveis. A interface para usar esses recursos ainda será implementada.
 
 ```python
-from playlist_music.imports import parse_pasted_text
+from pathlib import Path
+
+from playlist_music.imports import parse_csv_file, parse_pasted_text, parse_txt_file
 
 result = parse_pasted_text("Artista - Música\nhttps://example.com/song")
+txt_result = parse_txt_file(Path("minhas-musicas.txt"))
+csv_result = parse_csv_file(Path("minhas-musicas.csv"))
 ```
 
 ## Visão do MVP

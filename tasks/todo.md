@@ -46,14 +46,14 @@
 **Description:** Reutilizar o normalizador para TXT e adicionar CSV com schema pequeno e erros localizados por linha.
 
 **Acceptance criteria:**
-- [ ] TXT aceita UTF-8 e UTF-8 com BOM usando as mesmas regras do texto colado.
-- [ ] CSV reconhece `title`, `artist` e `url`, independentemente da ordem das colunas.
-- [ ] CSV cobre vírgulas entre aspas, cabeçalho inválido e linhas parcialmente válidas.
+- [x] TXT aceita UTF-8 e UTF-8 com BOM usando as mesmas regras do texto colado.
+- [x] CSV reconhece `title`, `artist` e `url`, independentemente da ordem das colunas.
+- [x] CSV cobre vírgulas entre aspas, cabeçalho inválido e linhas parcialmente válidas.
 
 **Verification:**
-- [ ] `py -m pytest tests/test_tabular_import.py`
-- [ ] `py -m pytest`
-- [ ] `py -m ruff check .`
+- [x] `py -m pytest tests/test_tabular_import.py`
+- [x] `py -m pytest`
+- [x] `py -m ruff check .`
 
 **Dependencies:** Task 2
 
