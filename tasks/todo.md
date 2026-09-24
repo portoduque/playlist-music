@@ -323,15 +323,27 @@
 **Description:** Escrever instruções reproduzíveis, executar a matriz final e registrar evidências dos critérios de sucesso.
 
 **Acceptance criteria:**
-- [ ] README cobre instalação, FFmpeg, formatos, uso, solução de erros e limites legais.
+- [x] README cobre instalação, FFmpeg, formatos, uso, solução de erros e limites legais.
 - [ ] Uma instalação limpa consegue executar testes e abrir o aplicativo seguindo somente o README.
-- [ ] Cada critério de sucesso de `SPEC.md` possui verificação automatizada ou manual registrada.
+- [x] Cada critério de sucesso de `SPEC.md` possui verificação automatizada ou manual registrada.
+
+**Matriz de evidências dos critérios de sucesso:**
+
+| Critério em `SPEC.md` | Evidência registrada |
+| --- | --- |
+| Importar formatos e indicar itens inválidos | `tests/test_text_import.py`, `tests/test_tabular_import.py`, `tests/test_playlist_json_import.py`, `tests/test_ui_state.py` |
+| Gerar MP3s, relatório e playlists | `tests/test_service.py` com aquisição falsa e `tests/test_artifacts.py` |
+| Manter playlists após mover a pasta | `tests/test_artifacts.py` move a pasta temporária e resolve as entradas |
+| Continuar após uma falha | `tests/test_queue.py` e `tests/test_service.py` cobrem falha intermediária |
+| Usar a tela sem opções avançadas | `tests/test_ui_state.py`; inspeção manual de teclado/escala permanece pendente |
+| Testar parsers, saída e downloader sem rede | toda a suíte usa runners falsos para ferramentas externas; `tests/test_commands.py` e `tests/test_single_download.py` cobrem a fronteira |
+| Explicar instalação, uso, dependências e limites | README revisado nesta tarefa; instalação e abertura ainda precisam de verificação manual limpa |
 
 **Verification:**
-- [ ] `py -m pip install -e ".[dev]"`
-- [ ] `py -m pytest`
-- [ ] `py -m ruff check .`
-- [ ] `py -m playlist_music`
+- [x] `py -m pip install -e ".[dev]"`
+- [x] `py -m pytest`
+- [x] `py -m ruff check .`
+- [x] `py -m playlist_music` inicia localmente; encerrado após a verificação sem iniciar downloads.
 - [ ] Smoke test manual com uma fonte autorizada e reprodução da `.m3u8` em um player.
 
 **Dependencies:** Task 14

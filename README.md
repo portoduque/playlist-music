@@ -63,6 +63,12 @@ O fluxo pretendido é simples: informar ou importar uma lista, escolher a pasta 
 - Python 3.11 ou mais recente.
 - FFmpeg é necessário para a conversão/extração real para MP3 pelo fluxo headless.
 
+Instale o FFmpeg pelo método indicado para seu sistema e confirme que ele está disponível no `PATH` antes de criar uma playlist:
+
+```powershell
+ffmpeg -version
+```
+
 ## Instalação para desenvolvimento
 
 No diretório do repositório, instale o pacote em modo editável com as ferramentas de desenvolvimento:
@@ -72,6 +78,27 @@ py -m pip install -e ".[dev]"
 ```
 
 Esse comando instala as dependências atuais do projeto: `yt-dlp`, Mutagen, Pytest e Ruff.
+
+## Uso
+
+1. Abra o aplicativo com `py -m playlist_music`.
+2. Informe o nome da playlist e cole uma consulta ou URL HTTP(S) por linha — ou escolha **Import file** para usar `.txt`, `.csv`, `.m3u`, `.m3u8` ou `.json`.
+3. Confira a contagem de itens válidos e inválidos. Corrija os itens inválidos antes de criar a playlist.
+4. Escolha a pasta de saída, mantenha a qualidade **recommended** ou selecione **balanced** ou **compact** em **More options**.
+5. Clique em **Create playlist**. A janela continua utilizável enquanto o progresso é exibido.
+6. Ao terminar, leia o resumo e use **Open folder** ou **Open playlist** quando estiverem disponíveis.
+
+A pasta escolhida recebe os MP3s concluídos, `resultado.txt`, uma playlist `.m3u8` em UTF-8 e uma `.m3u` em UTF-8 com BOM. Os dois arquivos de playlist usam caminhos relativos; mova a pasta inteira para mantê-los reproduzíveis.
+
+## Solução de problemas
+
+| Situação | O que fazer |
+| --- | --- |
+| `FFmpeg was not found on PATH.` | Instale o FFmpeg, adicione-o ao `PATH` e confirme com `ffmpeg -version`. |
+| `yt-dlp version check failed.` | Reinstale as dependências com `py -m pip install -e ".[dev]"` e tente novamente. |
+| A contagem mostra itens inválidos | Corrija ou remova as linhas indicadas antes de criar; o aplicativo não inicia uma lista parcialmente inválida. |
+| Uma faixa falha | Abra `resultado.txt` na pasta de saída. As outras faixas continuam sendo processadas. |
+| Nenhuma faixa é concluída | Revise `resultado.txt`, a disponibilidade da fonte e se ela é autorizada e sem DRM. |
 
 ## Verificação
 
