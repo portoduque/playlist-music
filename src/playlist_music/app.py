@@ -10,7 +10,9 @@ from playlist_music.imports import (
     parse_m3u_file,
     parse_txt_file,
 )
+from playlist_music.service import create_playlist
 from playlist_music.ui_state import InputState
+from playlist_music.worker import PlaylistWorker
 
 
 class PlaylistMusicApp:
@@ -24,8 +26,10 @@ class PlaylistMusicApp:
         self.quality = tk.StringVar(value=self.state.quality)
         self.summary = tk.StringVar(value=self.state.import_summary)
         self.status = tk.StringVar(value="Choose a playlist name, songs, and a folder.")
+        self.worker = PlaylistWorker()
         self.advanced_frame: ttk.LabelFrame | None = None
         self.frame: ttk.Frame | None = None
+        self.create_button: ttk.Button | None = None
         self.root.title("Playlist Music")
         self.root.minsize(620, 520)
         self._build()
@@ -71,7 +75,8 @@ class PlaylistMusicApp:
         quality.grid(row=11, pady=(0, 12), sticky="w")
         quality.bind("<<ComboboxSelected>>", self._set_quality)
         ttk.Button(frame, text="More options", command=self._toggle_advanced).grid(row=12, sticky="w")
-        ttk.Button(frame, text="Create playlist", command=self._create_playlist).grid(
+        self.create_button = ttk.Button(frame, text="Create playlist", command=self._create_playlist)
+        self.create_button.grid(
             row=13, pady=(16, 8), sticky="w"
         )
         ttk.Label(frame, textvariable=self.status, wraplength=560).grid(row=14, sticky="w")
@@ -126,7 +131,45 @@ class PlaylistMusicApp:
             self.advanced_frame = None
 
     def _create_playlist(self) -> None:
-        self.status.set("Playlist is ready. Background processing will be enabled next.")
+        if not self.state.output_folder:
+            self.status.set("Choose an output folder first.")
+            return
+        started = self.worker.start(
+            lambda on_progress: create_playlist(
+                self.name.get(),
+                self.state.output_folder,
+                self.state.imported,
+                quality=self.state.quality,
+                on_progress=on_progress,
+            )
+        )
+        if not started:
+            self.status.set("A playlist is already being created.")
+            return
+        if self.create_button:
+            self.create_button.configure(state="disabled")
+        self.status.set("Starting playlist creation…")
+        self.root.after(50, self._poll_worker)
+
+    def _poll_worker(self) -> None:
+        for event in self.worker.drain_events():
+            if event.kind == "progress" and event.progress:
+                self.status.set(
+                    f"Processing {event.progress.completed}/{event.progress.total}: "
+                    f"{event.progress.item.request.query}"
+                )
+            elif event.kind == "completed" and event.result:
+                self.status.set(event.result.message or "Playlist creation finished.")
+                self._enable_creation()
+            elif event.kind == "error":
+                self.status.set(event.message or "Playlist creation failed unexpectedly.")
+                self._enable_creation()
+        if self.worker.is_running:
+            self.root.after(50, self._poll_worker)
+
+    def _enable_creation(self) -> None:
+        if self.create_button:
+            self.create_button.configure(state="normal")
 
 
 def run_app() -> None:

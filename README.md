@@ -1,6 +1,6 @@
 # Playlist Music
 
-Aplicativo desktop local e open source para organizar listas de músicas de fontes autorizadas em uma pasta portátil com MP3s e playlists reproduzíveis. O MVP está em desenvolvimento; o pacote, as ferramentas de qualidade e todos os importadores de lista planejados já estão configurados, mas o fluxo completo ainda não foi conectado à interface.
+Aplicativo desktop local e open source para organizar listas de músicas de fontes autorizadas em uma pasta portátil com MP3s e playlists reproduzíveis. O MVP está em desenvolvimento; o pacote, as ferramentas de qualidade e todos os importadores de lista planejados já estão configurados, mas o fluxo de conclusão ainda será refinado.
 
 ## Estado atual
 
@@ -10,7 +10,7 @@ O comando abaixo abre a tela local inicial:
 py -m playlist_music
 ```
 
-Ela permite informar o nome da playlist, colar consultas ou URLs, importar uma lista, escolher a pasta e a qualidade. A execução em segundo plano será conectada na próxima etapa.
+Ela permite informar o nome da playlist, colar consultas ou URLs, importar uma lista, escolher a pasta e a qualidade. Ao criar, o processamento local ocorre em segundo plano e a tela recebe atualizações de progresso sem ser manipulada pela thread de trabalho.
 
 O escopo planejado, a ordem de implementação e os critérios de aceite estão em [SPEC.md](SPEC.md), [tasks/plan.md](tasks/plan.md) e [tasks/todo.md](tasks/todo.md).
 
@@ -50,7 +50,7 @@ O módulo interno grava título, artista e álbum em tags ID3 e pode incorporar 
 
 ### Playlists e relatório internos
 
-O módulo interno gera `.m3u8` em UTF-8 e `.m3u` em UTF-8 com BOM, ambos com caminhos relativos para que a pasta possa ser movida inteira. Somente MP3s finais e confinados à pasta entram nas playlists. O `resultado.txt` mantém a ordem da fila e registra consulta, estado, origem, arquivo e erro; parâmetros e fragmentos de URLs são removidos antes do registro. Um serviço headless já conecta importação normalizada, preflight, fila, tags e artefatos; a tela será conectada a ele na próxima etapa.
+O módulo interno gera `.m3u8` em UTF-8 e `.m3u` em UTF-8 com BOM, ambos com caminhos relativos para que a pasta possa ser movida inteira. Somente MP3s finais e confinados à pasta entram nas playlists. O `resultado.txt` mantém a ordem da fila e registra consulta, estado, origem, arquivo e erro; parâmetros e fragmentos de URLs são removidos antes do registro. O serviço headless já conecta importação normalizada, preflight, fila, tags e artefatos à tela por uma thread de trabalho segura.
 
 ## Visão do MVP
 

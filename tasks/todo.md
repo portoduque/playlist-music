@@ -274,15 +274,15 @@
 **Description:** Conectar o serviço a uma thread de trabalho e entregar eventos à thread principal por fila.
 
 **Acceptance criteria:**
-- [ ] Nenhum widget é alterado fora da thread Tkinter.
-- [ ] Progresso e resultado chegam em ordem e um segundo início simultâneo é bloqueado.
-- [ ] Exceção inesperada da thread vira mensagem recuperável, não encerramento silencioso.
+- [x] Nenhum widget é alterado fora da thread Tkinter.
+- [x] Progresso e resultado chegam em ordem e um segundo início simultâneo é bloqueado.
+- [x] Exceção inesperada da thread vira mensagem recuperável, não encerramento silencioso.
 
 **Verification:**
-- [ ] `py -m pytest tests/test_worker.py`
-- [ ] Testar eventos, exceção, término e dupla execução com serviço falso.
+- [x] `py -m pytest tests/test_worker.py`
+- [x] Testar eventos, exceção, término e dupla execução com serviço falso.
 - [ ] Teste manual confirma que a janela pode ser movida durante processamento falso.
-- [ ] `py -m pytest` and `py -m ruff check .`
+- [x] `py -m pytest` and `py -m ruff check .`
 
 **Dependencies:** Task 12
 
