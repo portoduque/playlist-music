@@ -1,6 +1,6 @@
 # Playlist Music
 
-Aplicativo desktop local e open source para organizar listas de músicas de fontes autorizadas em uma pasta portátil com MP3s e playlists reproduzíveis. O MVP está em desenvolvimento; o pacote, as ferramentas de qualidade e todos os importadores de lista planejados já estão configurados, mas o fluxo de conclusão ainda será refinado.
+Aplicativo desktop local e open source para organizar listas de músicas de fontes autorizadas em uma pasta portátil com MP3s e playlists reproduzíveis. O MVP está em desenvolvimento; o pacote, as ferramentas de qualidade e todos os importadores de lista planejados já estão configurados.
 
 ## Estado atual
 
@@ -10,7 +10,7 @@ O comando abaixo abre a tela local inicial:
 py -m playlist_music
 ```
 
-Ela permite informar o nome da playlist, colar consultas ou URLs, importar uma lista, escolher a pasta e a qualidade. Ao criar, o processamento local ocorre em segundo plano e a tela recebe atualizações de progresso sem ser manipulada pela thread de trabalho.
+Ela permite informar o nome da playlist, colar consultas ou URLs, importar uma lista, escolher a pasta e a qualidade. Ao criar, o processamento local ocorre em segundo plano e a tela recebe atualizações de progresso sem ser manipulada pela thread de trabalho. No fim, ela informa quantas faixas foram concluídas, falharam ou foram ignoradas como duplicadas e oferece abrir a pasta ou a playlist gerada quando os caminhos continuam válidos.
 
 O escopo planejado, a ordem de implementação e os critérios de aceite estão em [SPEC.md](SPEC.md), [tasks/plan.md](tasks/plan.md) e [tasks/todo.md](tasks/todo.md).
 

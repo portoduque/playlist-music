@@ -295,15 +295,15 @@
 **Description:** Mostrar progresso por faixa, resumo final, pendências e ações de abrir pasta/playlist.
 
 **Acceptance criteria:**
-- [ ] Usuário distingue sucesso, falha e duplicata sem ler logs técnicos.
-- [ ] “Abrir pasta” usa o recurso nativo do sistema somente para a pasta validada.
-- [ ] Após término ou erro, controles voltam a um estado utilizável.
+- [x] Usuário distingue sucesso, falha e duplicata sem ler logs técnicos.
+- [x] “Abrir pasta” usa o recurso nativo do sistema somente para a pasta validada.
+- [x] Após término ou erro, controles voltam a um estado utilizável.
 
 **Verification:**
-- [ ] `py -m pytest tests/test_ui_completion.py`
-- [ ] Testar sucesso total, parcial, zero sucessos e falha inesperada.
+- [x] `py -m pytest tests/test_ui_completion.py`
+- [x] Testar sucesso total, parcial, zero sucessos e falha inesperada.
 - [ ] Teste manual do fluxo completo com serviço falso.
-- [ ] `py -m pytest` and `py -m ruff check .`
+- [x] `py -m pytest` and `py -m ruff check .`
 
 **Dependencies:** Task 13
 

@@ -1,5 +1,6 @@
 """Minimal accessible Tkinter screen for Playlist Music."""
 
+import os
 import tkinter as tk
 from pathlib import Path
 from tkinter import filedialog, ttk
@@ -10,8 +11,8 @@ from playlist_music.imports import (
     parse_m3u_file,
     parse_txt_file,
 )
-from playlist_music.service import create_playlist
-from playlist_music.ui_state import InputState
+from playlist_music.service import ServiceResult, create_playlist
+from playlist_music.ui_state import InputState, completion_actions, safe_output_path
 from playlist_music.worker import PlaylistWorker
 
 
@@ -29,6 +30,9 @@ class PlaylistMusicApp:
         self.worker = PlaylistWorker()
         self.advanced_frame: ttk.LabelFrame | None = None
         self.frame: ttk.Frame | None = None
+        self._active_output_folder: Path | None = None
+        self._folder_to_open: Path | None = None
+        self._playlist_to_open: Path | None = None
         self.create_button: ttk.Button | None = None
         self.root.title("Playlist Music")
         self.root.minsize(620, 520)
@@ -80,6 +84,17 @@ class PlaylistMusicApp:
             row=13, pady=(16, 8), sticky="w"
         )
         ttk.Label(frame, textvariable=self.status, wraplength=560).grid(row=14, sticky="w")
+        self.actions_frame = ttk.Frame(frame)
+        self.actions_frame.grid(row=15, pady=(12, 0), sticky="w")
+        self.open_folder_button = ttk.Button(
+            self.actions_frame, text="Open folder", command=self._open_folder, state="disabled"
+        )
+        self.open_folder_button.grid(row=0, column=0)
+        self.open_playlist_button = ttk.Button(
+            self.actions_frame, text="Open playlist", command=self._open_playlist, state="disabled"
+        )
+        self.open_playlist_button.grid(row=0, column=1, padx=(8, 0))
+        self.actions_frame.grid_remove()
 
     def _update_pasted_text(self, _event: tk.Event) -> None:
         self.state.set_pasted_text(self.text.get("1.0", "end-1c"))
@@ -121,7 +136,7 @@ class PlaylistMusicApp:
             if not self.frame:
                 return
             self.advanced_frame = ttk.LabelFrame(self.frame, text="More options", padding=8)
-            self.advanced_frame.grid(row=15, pady=(12, 0), sticky="ew")
+            self.advanced_frame.grid(row=16, pady=(12, 0), sticky="ew")
             ttk.Label(
                 self.advanced_frame,
                 text="Metadata, duplicate handling, and opening the folder use safe defaults.",
@@ -134,12 +149,16 @@ class PlaylistMusicApp:
         if not self.state.output_folder:
             self.status.set("Choose an output folder first.")
             return
+        playlist_name = self.name.get()
+        output_folder = self.state.output_folder
+        imported = self.state.imported
+        quality = self.state.quality
         started = self.worker.start(
             lambda on_progress: create_playlist(
-                self.name.get(),
-                self.state.output_folder,
-                self.state.imported,
-                quality=self.state.quality,
+                playlist_name,
+                output_folder,
+                imported,
+                quality=quality,
                 on_progress=on_progress,
             )
         )
@@ -148,6 +167,8 @@ class PlaylistMusicApp:
             return
         if self.create_button:
             self.create_button.configure(state="disabled")
+        self._active_output_folder = output_folder
+        self.actions_frame.grid_remove()
         self.status.set("Starting playlist creation…")
         self.root.after(50, self._poll_worker)
 
@@ -159,17 +180,49 @@ class PlaylistMusicApp:
                     f"{event.progress.item.request.query}"
                 )
             elif event.kind == "completed" and event.result:
-                self.status.set(event.result.message or "Playlist creation finished.")
-                self._enable_creation()
+                self._show_completion(event.result)
             elif event.kind == "error":
-                self.status.set(event.message or "Playlist creation failed unexpectedly.")
-                self._enable_creation()
+                self._show_error(event.message)
         if self.worker.is_running:
             self.root.after(50, self._poll_worker)
 
     def _enable_creation(self) -> None:
         if self.create_button:
             self.create_button.configure(state="normal")
+
+    def _show_completion(self, result: ServiceResult) -> None:
+        actions = completion_actions(result, self._active_output_folder or self.state.output_folder)
+        self.status.set(actions.message)
+        self._folder_to_open = actions.folder
+        self._playlist_to_open = actions.playlist
+        self.open_folder_button.configure(state="normal" if actions.folder else "disabled")
+        self.open_playlist_button.configure(state="normal" if actions.playlist else "disabled")
+        if actions.folder or actions.playlist:
+            self.actions_frame.grid()
+        else:
+            self.actions_frame.grid_remove()
+        self._enable_creation()
+
+    def _show_error(self, message: str | None) -> None:
+        self.status.set(message or "Playlist creation failed unexpectedly.")
+        self.actions_frame.grid_remove()
+        self._enable_creation()
+
+    def _open_folder(self) -> None:
+        self._open_path(self._folder_to_open, directory=True)
+
+    def _open_playlist(self) -> None:
+        self._open_path(self._playlist_to_open, directory=False)
+
+    def _open_path(self, candidate: Path | None, *, directory: bool) -> None:
+        path = safe_output_path(self._active_output_folder or self.state.output_folder, candidate, directory=directory)
+        if not path:
+            self.status.set("That output is no longer available.")
+            return
+        try:
+            os.startfile(str(path))
+        except OSError:
+            self.status.set("Could not open the selected output.")
 
 
 def run_app() -> None:
