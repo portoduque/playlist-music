@@ -324,7 +324,7 @@
 
 **Acceptance criteria:**
 - [x] README cobre instalação, FFmpeg, formatos, uso, solução de erros e limites legais.
-- [ ] Uma instalação limpa consegue executar testes e abrir o aplicativo seguindo somente o README.
+- [x] Uma instalação limpa consegue executar testes e abrir o aplicativo seguindo somente o README.
 - [x] Cada critério de sucesso de `SPEC.md` possui verificação automatizada ou manual registrada.
 
 **Matriz de evidências dos critérios de sucesso:**
@@ -337,13 +337,11 @@
 | Continuar após uma falha | `tests/test_queue.py` e `tests/test_service.py` cobrem falha intermediária |
 | Usar a tela sem opções avançadas | `tests/test_ui_state.py`; inspeção manual de teclado/escala permanece pendente |
 | Testar parsers, saída e downloader sem rede | toda a suíte usa runners falsos para ferramentas externas; `tests/test_commands.py` e `tests/test_single_download.py` cobrem a fronteira |
-| Explicar instalação, uso, dependências e limites | README revisado nesta tarefa; instalação e abertura ainda precisam de verificação manual limpa |
+| Explicar instalação, uso, dependências e limites | README revisado nesta tarefa; ambiente isolado instalou, testou e iniciou o aplicativo |
 
 **Verification:**
-- [x] `py -m pip install -e ".[dev]"`
-- [x] `py -m pytest`
-- [x] `py -m ruff check .`
-- [x] `py -m playlist_music` inicia localmente; encerrado após a verificação sem iniciar downloads.
+- [x] Ambiente virtual isolado: `py -m pip install -e ".[dev]"`, `py -m pytest` e `py -m ruff check .`.
+- [x] `py -m playlist_music` inicia pelo ambiente isolado; encerrado após a verificação sem iniciar downloads.
 - [ ] Smoke test manual com uma fonte autorizada e reprodução da `.m3u8` em um player.
 
 **Dependencies:** Task 14
