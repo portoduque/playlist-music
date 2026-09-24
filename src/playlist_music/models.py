@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Literal
 
 
 @dataclass(frozen=True, slots=True)
@@ -46,3 +47,28 @@ class AcquisitionResult:
     output_path: Path | None
     source: str | None
     error: str | None
+
+
+@dataclass(frozen=True, slots=True)
+class QueueItemResult:
+    """One final queue state: successful, failed, or skipped as duplicate."""
+
+    request: TrackRequest
+    status: Literal["succeeded", "failed", "duplicate"]
+    acquisition: AcquisitionResult | None
+
+
+@dataclass(frozen=True, slots=True)
+class QueueProgress:
+    """Progress emitted after one input request reaches its final state."""
+
+    completed: int
+    total: int
+    item: QueueItemResult
+
+
+@dataclass(frozen=True, slots=True)
+class QueueResult:
+    """Ordered final states for a complete acquisition queue."""
+
+    items: list[QueueItemResult]

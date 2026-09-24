@@ -44,9 +44,9 @@ json_result = parse_json_file(Path("minhas-musicas.json"))
 
 O código sanitiza nomes para Windows, bloqueia componentes de caminho inseguros, mantém o arquivo calculado dentro da pasta selecionada, evita colisões com sufixos determinísticos e identifica duplicatas preservando a primeira ocorrência. Na execução unitária de uma faixa, só há sucesso depois que o MP3 final existe dentro dessa pasta; arquivos parciais não contam como concluídos e um arquivo existente não é sobrescrito.
 
-### Pré-checagem e execução unitária
+### Pré-checagem, execução e fila interna
 
-O código verifica se o FFmpeg está disponível e se o módulo instalado do `yt-dlp` responde à consulta de versão. Também monta comandos de extração MP3 com qualidade `recommended` (padrão), `balanced` ou `compact`; cada argumento permanece separado, sem shell. Já existe um executor interno para uma faixa, com timeout, erro limitado, proteção contra sobrescrita e validação do arquivo final. A fila, a interface e a criação das playlists ainda não foram implementadas.
+O código verifica se o FFmpeg está disponível e se o módulo instalado do `yt-dlp` responde à consulta de versão. Também monta comandos de extração MP3 com qualidade `recommended` (padrão), `balanced` ou `compact`; cada argumento permanece separado, sem shell. Já existe um executor interno para uma faixa, com timeout, erro limitado, proteção contra sobrescrita e validação do arquivo final. A fila interna processa itens em ordem, comunica progresso e continua após falhas; sucessos, falhas e duplicatas têm estados finais distintos. A interface e a criação das playlists ainda não foram implementadas.
 
 ## Visão do MVP
 

@@ -156,15 +156,15 @@
 **Description:** Processar pedidos em sequência, emitir progresso e continuar após falhas individuais.
 
 **Acceptance criteria:**
-- [ ] Ordem de entrada é preservada nos resultados e eventos de progresso.
-- [ ] Uma falha entre dois sucessos não impede o terceiro item.
-- [ ] Duplicatas, falhas e sucessos possuem estados finais exclusivos.
+- [x] Ordem de entrada é preservada nos resultados e eventos de progresso.
+- [x] Uma falha entre dois sucessos não impede o terceiro item.
+- [x] Duplicatas, falhas e sucessos possuem estados finais exclusivos.
 
 **Verification:**
-- [ ] `py -m pytest tests/test_queue.py`
-- [ ] Testar fila vazia, todos falham, falha intermediária e duplicatas.
-- [ ] `py -m pytest`
-- [ ] `py -m ruff check .`
+- [x] `py -m pytest tests/test_queue.py`
+- [x] Testar fila vazia, todos falham, falha intermediária e duplicatas.
+- [x] `py -m pytest`
+- [x] `py -m ruff check .`
 
 **Dependencies:** Task 7
 
@@ -174,9 +174,9 @@
 
 ## Checkpoint B: Safe acquisition
 
-- [ ] Tasks 5–8 complete focused checks.
-- [ ] Full suite and Ruff pass without network.
-- [ ] Traversal and shell-character cases remain safe.
+- [x] Tasks 5–8 complete focused checks.
+- [x] Full suite and Ruff pass without network.
+- [x] Traversal and shell-character cases remain safe.
 - [ ] Human review approves command/output boundaries.
 
 ## Task 9: Write metadata without losing audio
