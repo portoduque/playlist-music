@@ -1,6 +1,7 @@
 """Import supported playlist inputs into normalized requests."""
 
 import csv
+import json
 import re
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -62,6 +63,55 @@ def parse_csv_file(path: Path) -> ImportResult:
                 _append_request(url or query, line_number, query, requests, issues)
     except (csv.Error, OSError, UnicodeError):
         return ImportResult([], [ImportIssue(None, "Could not read CSV file.")])
+
+    return ImportResult(requests, issues)
+
+
+def parse_m3u_file(path: Path) -> ImportResult:
+    """Read an M3U/M3U8 file, ignoring comment lines."""
+    try:
+        text = path.read_text(encoding="utf-8-sig")
+    except (OSError, UnicodeError):
+        return ImportResult([], [ImportIssue(None, "Could not read M3U file.")])
+
+    lines = ("" if line.lstrip().startswith("#") else line for line in text.splitlines())
+    return parse_pasted_text("\n".join(lines))
+
+
+def parse_json_file(path: Path) -> ImportResult:
+    """Read a list of strings or simple track objects from JSON."""
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8-sig"))
+    except (OSError, UnicodeError, json.JSONDecodeError):
+        return ImportResult([], [ImportIssue(None, "Could not read JSON file.")])
+
+    if not isinstance(payload, list):
+        return ImportResult([], [ImportIssue(None, "JSON root must be a list.")])
+
+    requests: list[TrackRequest] = []
+    issues: list[ImportIssue] = []
+    for item_number, item in enumerate(payload, start=1):
+        if isinstance(item, str):
+            value = item.strip()
+            if value:
+                _append_request(value, item_number, value, requests, issues)
+            else:
+                issues.append(ImportIssue(item_number, "JSON item needs title or url."))
+            continue
+        if not isinstance(item, dict):
+            issues.append(ImportIssue(item_number, "JSON item must be a string or object."))
+            continue
+
+        values = [item.get(name) for name in ("title", "artist", "url")]
+        if any(value is not None and not isinstance(value, str) for value in values):
+            issues.append(ImportIssue(item_number, "JSON title, artist, and url must be strings."))
+            continue
+        title, artist, url = ((value or "").strip() for value in values)
+        if not title and not url:
+            issues.append(ImportIssue(item_number, "JSON item needs title or url."))
+            continue
+        query = f"{artist} - {title}" if artist and title else title or url
+        _append_request(url or query, item_number, query, requests, issues)
 
     return ImportResult(requests, issues)
 

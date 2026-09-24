@@ -66,14 +66,14 @@
 **Description:** Completar os formatos do MVP sem alterar o contrato normalizado.
 
 **Acceptance criteria:**
-- [ ] M3U/M3U8 ignora comentários, aceita BOM e preserva URLs/caminhos relativos úteis.
-- [ ] JSON aceita uma lista de strings ou objetos com `title`, `artist` e `url`.
-- [ ] Arquivo malformado, tipo raiz inválido e objetos incompletos geram erros localizados.
+- [x] M3U/M3U8 ignora comentários, aceita BOM e preserva URLs/caminhos relativos úteis.
+- [x] JSON aceita uma lista de strings ou objetos com `title`, `artist` e `url`.
+- [x] Arquivo malformado, tipo raiz inválido e objetos incompletos geram erros localizados.
 
 **Verification:**
-- [ ] `py -m pytest tests/test_playlist_json_import.py`
-- [ ] `py -m pytest`
-- [ ] `py -m ruff check .`
+- [x] `py -m pytest tests/test_playlist_json_import.py`
+- [x] `py -m pytest`
+- [x] `py -m ruff check .`
 
 **Dependencies:** Task 2
 
