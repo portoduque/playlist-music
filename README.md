@@ -4,23 +4,19 @@ Aplicativo desktop local e open source para organizar listas de músicas de font
 
 ## Estado atual
 
-O comando abaixo funciona e confirma que a base do aplicativo está instalada:
+O comando abaixo abre a tela local inicial:
 
 ```powershell
 py -m playlist_music
 ```
 
-Saída atual:
-
-```text
-Playlist Music is not ready yet.
-```
+Ela permite informar o nome da playlist, colar consultas ou URLs, importar uma lista, escolher a pasta e a qualidade. A execução em segundo plano será conectada na próxima etapa.
 
 O escopo planejado, a ordem de implementação e os critérios de aceite estão em [SPEC.md](SPEC.md), [tasks/plan.md](tasks/plan.md) e [tasks/todo.md](tasks/todo.md).
 
 ### Importação disponível para desenvolvimento
 
-O código já normaliza consultas e URLs HTTP(S) por texto colado, `.txt` UTF-8 (com ou sem BOM), `.csv`, `.m3u`, `.m3u8` e `.json`. Em CSV, `title`, `artist` e `url` podem aparecer em qualquer ordem; títulos entre aspas são aceitos. M3U ignora comentários e mantém caminhos relativos. JSON aceita uma lista de strings ou objetos simples com `title`, `artist` e `url`. Linhas vazias são ignoradas, a ordem e a origem são preservadas, e problemas por item são recuperáveis. A interface para usar esses recursos ainda será implementada.
+O código já normaliza consultas e URLs HTTP(S) por texto colado, `.txt` UTF-8 (com ou sem BOM), `.csv`, `.m3u`, `.m3u8` e `.json`. Em CSV, `title`, `artist` e `url` podem aparecer em qualquer ordem; títulos entre aspas são aceitos. M3U ignora comentários e mantém caminhos relativos. JSON aceita uma lista de strings ou objetos simples com `title`, `artist` e `url`. Linhas vazias são ignoradas, a ordem e a origem são preservadas, e problemas por item são recuperáveis. A tela já aceita texto colado e importa esses cinco formatos, mostrando a contagem válida/inválida.
 
 ```python
 from pathlib import Path
@@ -54,7 +50,7 @@ O módulo interno grava título, artista e álbum em tags ID3 e pode incorporar 
 
 ### Playlists e relatório internos
 
-O módulo interno gera `.m3u8` em UTF-8 e `.m3u` em UTF-8 com BOM, ambos com caminhos relativos para que a pasta possa ser movida inteira. Somente MP3s finais e confinados à pasta entram nas playlists. O `resultado.txt` mantém a ordem da fila e registra consulta, estado, origem, arquivo e erro; parâmetros e fragmentos de URLs são removidos antes do registro. Um serviço headless já conecta importação normalizada, preflight, fila, tags e artefatos; a tela que o acionará ainda será implementada.
+O módulo interno gera `.m3u8` em UTF-8 e `.m3u` em UTF-8 com BOM, ambos com caminhos relativos para que a pasta possa ser movida inteira. Somente MP3s finais e confinados à pasta entram nas playlists. O `resultado.txt` mantém a ordem da fila e registra consulta, estado, origem, arquivo e erro; parâmetros e fragmentos de URLs são removidos antes do registro. Um serviço headless já conecta importação normalizada, preflight, fila, tags e artefatos; a tela será conectada a ele na próxima etapa.
 
 ## Visão do MVP
 
@@ -65,7 +61,7 @@ O fluxo pretendido é simples: informar ou importar uma lista, escolher a pasta 
 ## Requisitos
 
 - Python 3.11 ou mais recente.
-- FFmpeg é necessário para a conversão/extracão real para MP3 pelo fluxo headless.
+- FFmpeg é necessário para a conversão/extração real para MP3 pelo fluxo headless.
 
 ## Instalação para desenvolvimento
 

@@ -253,15 +253,15 @@
 **Description:** Criar a tela com nome, texto/importação, pasta, qualidade e opções avançadas recolhidas.
 
 **Acceptance criteria:**
-- [ ] Fluxo padrão exibe somente os campos essenciais e “Criar playlist”.
-- [ ] Importação mostra contagem válida/inválida antes de executar.
-- [ ] Teclado, foco, labels e mensagens básicas permanecem acessíveis.
+- [x] Fluxo padrão exibe somente os campos essenciais e “Criar playlist”.
+- [x] Importação mostra contagem válida/inválida antes de executar.
+- [x] Teclado, foco, labels e mensagens básicas permanecem acessíveis.
 
 **Verification:**
-- [ ] `py -m pytest tests/test_ui_state.py`
-- [ ] Testar estado inicial, importação válida/inválida e expansão de opções.
+- [x] `py -m pytest tests/test_ui_state.py`
+- [x] Testar estado inicial, importação válida/inválida e expansão de opções.
 - [ ] Inspeção manual de navegação por teclado e escala do Windows.
-- [ ] `py -m pytest` and `py -m ruff check .`
+- [x] `py -m pytest` and `py -m ruff check .`
 
 **Dependencies:** Task 11
 
