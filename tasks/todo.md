@@ -205,15 +205,15 @@
 **Description:** Criar `.m3u8`, `.m3u` e `resultado.txt` exclusivamente a partir dos resultados finais.
 
 **Acceptance criteria:**
-- [ ] Playlists incluem apenas arquivos concluídos e usam caminhos relativos na ordem original.
-- [ ] M3U8 preserva Unicode; M3U usa representação compatível documentada.
-- [ ] Relatório registra consulta, status, origem, arquivo e erro sem expor dados sensíveis.
+- [x] Playlists incluem apenas arquivos concluídos e usam caminhos relativos na ordem original.
+- [x] M3U8 preserva Unicode; M3U usa representação compatível documentada.
+- [x] Relatório registra consulta, status, origem, arquivo e erro sem expor dados sensíveis.
 
 **Verification:**
-- [ ] `py -m pytest tests/test_artifacts.py`
-- [ ] Mover diretório temporário e validar que todas as entradas ainda resolvem.
-- [ ] Testar zero sucessos, Unicode, falha e duplicata.
-- [ ] `py -m pytest` and `py -m ruff check .`
+- [x] `py -m pytest tests/test_artifacts.py`
+- [x] Mover diretório temporário e validar que todas as entradas ainda resolvem.
+- [x] Testar zero sucessos, Unicode, falha e duplicata.
+- [x] `py -m pytest` and `py -m ruff check .`
 
 **Dependencies:** Tasks 8 and 9
 

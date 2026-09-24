@@ -1,6 +1,6 @@
 # Playlist Music
 
-Aplicativo desktop local e open source para organizar listas de músicas de fontes autorizadas em uma pasta portátil com MP3s e playlists reproduzíveis. O MVP está em desenvolvimento; o pacote, as ferramentas de qualidade e todos os importadores de lista planejados já estão configurados, mas a criação de playlists ainda não foi implementada.
+Aplicativo desktop local e open source para organizar listas de músicas de fontes autorizadas em uma pasta portátil com MP3s e playlists reproduzíveis. O MVP está em desenvolvimento; o pacote, as ferramentas de qualidade e todos os importadores de lista planejados já estão configurados, mas o fluxo completo ainda não foi conectado à interface.
 
 ## Estado atual
 
@@ -51,6 +51,10 @@ O código verifica se o FFmpeg está disponível e se o módulo instalado do `yt
 ### Metadados internos
 
 O módulo interno grava título, artista e álbum em tags ID3 e pode incorporar uma capa PNG ou JPEG. Metadados e capas são opcionais: uma imagem inválida ou falha de escrita é relatada sem excluir nem invalidar o MP3 já existente. A associação desses dados às fontes e à playlist final será feita nas próximas etapas.
+
+### Playlists e relatório internos
+
+O módulo interno gera `.m3u8` em UTF-8 e `.m3u` em UTF-8 com BOM, ambos com caminhos relativos para que a pasta possa ser movida inteira. Somente MP3s finais e confinados à pasta entram nas playlists. O `resultado.txt` mantém a ordem da fila e registra consulta, estado, origem, arquivo e erro; parâmetros e fragmentos de URLs são removidos antes do registro. O serviço que conecta esses artefatos ao fluxo do usuário ainda será implementado.
 
 ## Visão do MVP
 
