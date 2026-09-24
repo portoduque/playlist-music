@@ -184,15 +184,15 @@
 **Description:** Gravar tags e capa disponíveis, preservando o MP3 quando dados opcionais falharem.
 
 **Acceptance criteria:**
-- [ ] Título, artista e álbum são gravados quando válidos.
-- [ ] JPEG/PNG válido é incorporado; imagem inválida é relatada e ignorada.
-- [ ] Ausência ou falha de tag não apaga nem invalida áudio concluído.
+- [x] Título, artista e álbum são gravados quando válidos.
+- [x] JPEG/PNG válido é incorporado; imagem inválida é relatada e ignorada.
+- [x] Ausência ou falha de tag não apaga nem invalida áudio concluído.
 
 **Verification:**
-- [ ] `py -m pytest tests/test_metadata.py`
-- [ ] Ler novamente as tags gravadas em fixture temporária.
-- [ ] Testar sem capa, capa inválida e erro de escrita simulado.
-- [ ] `py -m pytest` and `py -m ruff check .`
+- [x] `py -m pytest tests/test_metadata.py`
+- [x] Ler novamente as tags gravadas em fixture temporária.
+- [x] Testar sem capa, capa inválida e erro de escrita simulado.
+- [x] `py -m pytest` and `py -m ruff check .`
 
 **Dependencies:** Task 8
 

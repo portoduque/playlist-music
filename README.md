@@ -48,6 +48,10 @@ O código sanitiza nomes para Windows, bloqueia componentes de caminho inseguros
 
 O código verifica se o FFmpeg está disponível e se o módulo instalado do `yt-dlp` responde à consulta de versão. Também monta comandos de extração MP3 com qualidade `recommended` (padrão), `balanced` ou `compact`; cada argumento permanece separado, sem shell. Já existe um executor interno para uma faixa, com timeout, erro limitado, proteção contra sobrescrita e validação do arquivo final. A fila interna processa itens em ordem, comunica progresso e continua após falhas; sucessos, falhas e duplicatas têm estados finais distintos. A interface e a criação das playlists ainda não foram implementadas.
 
+### Metadados internos
+
+O módulo interno grava título, artista e álbum em tags ID3 e pode incorporar uma capa PNG ou JPEG. Metadados e capas são opcionais: uma imagem inválida ou falha de escrita é relatada sem excluir nem invalidar o MP3 já existente. A associação desses dados às fontes e à playlist final será feita nas próximas etapas.
+
 ## Visão do MVP
 
 Quando concluído, o aplicativo permitirá importar listas por texto, `.txt`, `.csv`, `.m3u`, `.m3u8` e `.json`; processar apenas fontes compatíveis, autorizadas e sem DRM; e gerar uma pasta com MP3s, metadados quando disponíveis, `resultado.txt`, `.m3u` e `.m3u8` com caminhos relativos.
