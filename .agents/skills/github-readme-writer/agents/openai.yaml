@@ -1,0 +1,4 @@
+interface:
+  display_name: "GitHub README Writer"
+  short_description: "Write accurate, well-structured GitHub READMEs."
+  default_prompt: "Use $github-readme-writer to create or improve this repository's README.md."
