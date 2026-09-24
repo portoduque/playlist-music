@@ -5,15 +5,15 @@
 **Description:** Criar o menor pacote Python executável, separar dependências de runtime/desenvolvimento e provar que os comandos básicos funcionam.
 
 **Acceptance criteria:**
-- [ ] `py -m playlist_music` inicia e encerra sem erro com um placeholder explícito.
-- [ ] Instalação editável disponibiliza somente as dependências aprovadas em `SPEC.md`.
-- [ ] Pytest e Ruff encontram o pacote no layout `src/`.
+- [x] `py -m playlist_music` inicia e encerra sem erro com um placeholder explícito.
+- [x] Instalação editável disponibiliza somente as dependências aprovadas em `SPEC.md`.
+- [x] Pytest e Ruff encontram o pacote no layout `src/`.
 
 **Verification:**
-- [ ] `py -m pip install -e ".[dev]"`
-- [ ] `py -m pytest tests/test_smoke.py`
-- [ ] `py -m ruff check .`
-- [ ] `py -m playlist_music`
+- [x] `py -m pip install -e ".[dev]"`
+- [x] `py -m pytest tests/test_smoke.py`
+- [x] `py -m ruff check .`
+- [x] `py -m playlist_music`
 
 **Dependencies:** None
 
