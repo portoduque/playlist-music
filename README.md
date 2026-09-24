@@ -46,15 +46,15 @@ O código sanitiza nomes para Windows, bloqueia componentes de caminho inseguros
 
 ### Pré-checagem, execução e fila interna
 
-O código verifica se o FFmpeg está disponível e se o módulo instalado do `yt-dlp` responde à consulta de versão. Também monta comandos de extração MP3 com qualidade `recommended` (padrão), `balanced` ou `compact`; cada argumento permanece separado, sem shell. Já existe um executor interno para uma faixa, com timeout, erro limitado, proteção contra sobrescrita e validação do arquivo final. A fila interna processa itens em ordem, comunica progresso e continua após falhas; sucessos, falhas e duplicatas têm estados finais distintos. A interface e a criação das playlists ainda não foram implementadas.
+O código verifica se o FFmpeg está disponível e se o módulo instalado do `yt-dlp` responde à consulta de versão. Também monta comandos de extração MP3 com qualidade `recommended` (padrão), `balanced` ou `compact`; cada argumento permanece separado, sem shell. Já existe um executor interno para uma faixa, com timeout, erro limitado, proteção contra sobrescrita e validação do arquivo final. A fila interna processa itens em ordem, comunica progresso e continua após falhas; sucessos, falhas e duplicatas têm estados finais distintos.
 
 ### Metadados internos
 
-O módulo interno grava título, artista e álbum em tags ID3 e pode incorporar uma capa PNG ou JPEG. Metadados e capas são opcionais: uma imagem inválida ou falha de escrita é relatada sem excluir nem invalidar o MP3 já existente. A associação desses dados às fontes e à playlist final será feita nas próximas etapas.
+O módulo interno grava título, artista e álbum em tags ID3 e pode incorporar uma capa PNG ou JPEG. Metadados e capas são opcionais: uma imagem inválida ou falha de escrita é relatada sem excluir nem invalidar o MP3 já existente. O serviço headless aplica o texto da solicitação como título; dados mais ricos da fonte serão conectados em uma etapa posterior.
 
 ### Playlists e relatório internos
 
-O módulo interno gera `.m3u8` em UTF-8 e `.m3u` em UTF-8 com BOM, ambos com caminhos relativos para que a pasta possa ser movida inteira. Somente MP3s finais e confinados à pasta entram nas playlists. O `resultado.txt` mantém a ordem da fila e registra consulta, estado, origem, arquivo e erro; parâmetros e fragmentos de URLs são removidos antes do registro. O serviço que conecta esses artefatos ao fluxo do usuário ainda será implementado.
+O módulo interno gera `.m3u8` em UTF-8 e `.m3u` em UTF-8 com BOM, ambos com caminhos relativos para que a pasta possa ser movida inteira. Somente MP3s finais e confinados à pasta entram nas playlists. O `resultado.txt` mantém a ordem da fila e registra consulta, estado, origem, arquivo e erro; parâmetros e fragmentos de URLs são removidos antes do registro. Um serviço headless já conecta importação normalizada, preflight, fila, tags e artefatos; a tela que o acionará ainda será implementada.
 
 ## Visão do MVP
 
@@ -65,7 +65,7 @@ O fluxo pretendido é simples: informar ou importar uma lista, escolher a pasta 
 ## Requisitos
 
 - Python 3.11 ou mais recente.
-- FFmpeg será necessário quando a funcionalidade de conversão para MP3 for implementada.
+- FFmpeg é necessário para a conversão/extracão real para MP3 pelo fluxo headless.
 
 ## Instalação para desenvolvimento
 

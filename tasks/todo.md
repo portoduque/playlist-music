@@ -226,14 +226,14 @@
 **Description:** Compor importação, preflight, fila, metadados e artefatos em uma única função de aplicação utilizável pela UI.
 
 **Acceptance criteria:**
-- [ ] Entrada válida com fake runner produz a pasta completa prevista em `SPEC.md`.
-- [ ] Erros de entrada/preflight impedem início; falhas por faixa não cancelam a fila.
-- [ ] O serviço expõe eventos de progresso sem conhecer Tkinter.
+- [x] Entrada válida com fake runner produz a pasta completa prevista em `SPEC.md`.
+- [x] Erros de entrada/preflight impedem início; falhas por faixa não cancelam a fila.
+- [x] O serviço expõe eventos de progresso sem conhecer Tkinter.
 
 **Verification:**
-- [ ] `py -m pytest tests/test_service.py`
-- [ ] Executar cenários: sucesso total, sucesso parcial, dependência ausente e entrada inválida.
-- [ ] `py -m pytest` and `py -m ruff check .`
+- [x] `py -m pytest tests/test_service.py`
+- [x] Executar cenários: sucesso total, sucesso parcial, dependência ausente e entrada inválida.
+- [x] `py -m pytest` and `py -m ruff check .`
 
 **Dependencies:** Task 10
 
@@ -243,9 +243,9 @@
 
 ## Checkpoint C: Portable library
 
-- [ ] Tasks 9–11 complete focused checks.
-- [ ] Full suite and Ruff pass without network.
-- [ ] Temporary output can be moved while playlists remain valid.
+- [x] Tasks 9–11 complete focused checks.
+- [x] Full suite and Ruff pass without network.
+- [x] Temporary output can be moved while playlists remain valid.
 - [ ] Human review approves the headless user flow.
 
 ## Task 12: Build the minimal input screen
