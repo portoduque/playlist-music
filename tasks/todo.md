@@ -26,14 +26,14 @@
 **Description:** Criar o contrato `TrackRequest` e transformar texto colado em pedidos ordenados, preservando erros por linha.
 
 **Acceptance criteria:**
-- [ ] Linhas de consulta e URL válidas mantêm a ordem original e índices estáveis.
-- [ ] Linhas vazias são ignoradas; entradas sem conteúdo útil geram erro legível.
-- [ ] Unicode, espaços externos e mistura de itens válidos/inválidos são cobertos.
+- [x] Linhas de consulta e URL válidas mantêm a ordem original e índices estáveis.
+- [x] Linhas vazias são ignoradas; entradas sem conteúdo útil geram erro legível.
+- [x] Unicode, espaços externos e mistura de itens válidos/inválidos são cobertos.
 
 **Verification:**
-- [ ] `py -m pytest tests/test_text_import.py`
-- [ ] `py -m pytest`
-- [ ] `py -m ruff check .`
+- [x] `py -m pytest tests/test_text_import.py`
+- [x] `py -m pytest`
+- [x] `py -m ruff check .`
 
 **Dependencies:** Task 1
 
