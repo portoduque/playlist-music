@@ -26,3 +26,11 @@ class ImportResult:
 
     requests: list[TrackRequest]
     issues: list[ImportIssue]
+
+
+@dataclass(frozen=True, slots=True)
+class DeduplicationResult:
+    """Requests retained for processing and requests skipped as duplicates."""
+
+    unique_requests: list[TrackRequest]
+    duplicate_requests: list[TrackRequest]

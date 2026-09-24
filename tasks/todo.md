@@ -93,15 +93,15 @@
 **Description:** Definir pasta, nomes seguros, colisões e duplicatas antes de qualquer ferramenta externa escrever arquivos.
 
 **Acceptance criteria:**
-- [ ] Nomes bloqueiam caracteres inválidos, traversal, nomes reservados e finais com ponto/espaço.
-- [ ] Colisões recebem sufixo determinístico sem sobrescrever arquivo existente.
-- [ ] Duplicatas da mesma execução são detectadas preservando a primeira ocorrência.
+- [x] Nomes bloqueiam caracteres inválidos, traversal, nomes reservados e finais com ponto/espaço.
+- [x] Colisões recebem sufixo determinístico sem sobrescrever arquivo existente.
+- [x] Duplicatas da mesma execução são detectadas preservando a primeira ocorrência.
 
 **Verification:**
-- [ ] `py -m pytest tests/test_output_paths.py`
-- [ ] Casos incluem `..`, caminho absoluto, `CON`, Unicode, colisão e nome vazio.
-- [ ] `py -m pytest`
-- [ ] `py -m ruff check .`
+- [x] `py -m pytest tests/test_output_paths.py`
+- [x] Casos incluem `..`, caminho absoluto, `CON`, Unicode, colisão e nome vazio.
+- [x] `py -m pytest`
+- [x] `py -m ruff check .`
 
 **Dependencies:** Tasks 3 and 4
 
