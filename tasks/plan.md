@@ -533,14 +533,14 @@ D1 estado validado e configuração padrão
 
 **Critérios de aceitação:**
 
-- [ ] Uma nova execução, sem interação, preserva qualidade Recommended, tags, capa e remoção de duplicatas.
-- [ ] O estado aceita alteração explícita de cada preferência e rejeita qualidade desconhecida.
-- [ ] Nenhuma preferência é persistida em arquivo, banco ou rede.
+- [x] Uma nova execução, sem interação, preserva qualidade Recommended, tags, capa e remoção de duplicatas.
+- [x] O estado aceita alteração explícita de cada preferência e rejeita qualidade desconhecida.
+- [x] Nenhuma preferência é persistida em arquivo, banco ou rede.
 
 **Testes:**
 
-- [ ] Testes de `InputState` verificam padrões e alterações independentes.
-- [ ] `py -m pytest tests/test_ui_state.py` e `py -m ruff check .` passam.
+- [x] Testes de `InputState` verificam padrões e alterações independentes.
+- [x] `py -m pytest tests/test_ui_state.py` e `py -m ruff check .` passam.
 
 **Arquivos prováveis:** `src/playlist_music/ui_state.py`, `tests/test_ui_state.py`.
 

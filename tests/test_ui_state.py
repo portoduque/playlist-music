@@ -12,6 +12,9 @@ def test_starts_with_only_the_safe_defaults() -> None:
     state = InputState()
 
     assert state.quality == "recommended"
+    assert state.embed_metadata is True
+    assert state.embed_thumbnail is True
+    assert state.skip_duplicates is True
     assert state.advanced_open is False
     assert state.import_summary == "Add music queries or URLs to begin."
 
@@ -36,6 +39,18 @@ def test_can_select_output_folder_quality_and_advanced_options() -> None:
     assert state.output_folder == Path("C:/Music")
     assert state.quality == "compact"
     assert state.advanced_open is True
+
+
+def test_can_change_each_run_preference_independently() -> None:
+    state = InputState()
+
+    state.set_embed_metadata(False)
+    state.set_embed_thumbnail(False)
+    state.set_skip_duplicates(False)
+
+    assert state.embed_metadata is False
+    assert state.embed_thumbnail is False
+    assert state.skip_duplicates is False
 
 
 def test_rejects_an_unknown_quality() -> None:

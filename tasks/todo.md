@@ -598,13 +598,13 @@
 
 **Acceptance criteria:**
 
-- [ ] Default state keeps Recommended quality, tags, cover art, and duplicate skipping enabled.
-- [ ] Each preference can change independently; unsupported quality remains rejected.
-- [ ] Preferences are not persisted outside the current run.
+- [x] Default state keeps Recommended quality, tags, cover art, and duplicate skipping enabled.
+- [x] Each preference can change independently; unsupported quality remains rejected.
+- [x] Preferences are not persisted outside the current run.
 
 **Verification:**
 
-- [ ] `py -m pytest tests/test_ui_state.py` and `py -m ruff check .`.
+- [x] `py -m pytest tests/test_ui_state.py` and `py -m ruff check .`.
 
 **Dependencies:** None
 

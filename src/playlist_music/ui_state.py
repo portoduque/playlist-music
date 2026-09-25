@@ -16,6 +16,9 @@ class InputState:
 
     output_folder: Path | None = None
     quality: str = "recommended"
+    embed_metadata: bool = True
+    embed_thumbnail: bool = True
+    skip_duplicates: bool = True
     advanced_open: bool = False
     imported: ImportResult = field(default_factory=lambda: parse_pasted_text(""))
 
@@ -48,6 +51,15 @@ class InputState:
         if quality not in AUDIO_QUALITY:
             raise ValueError(f"Unsupported quality: {quality}")
         self.quality = quality
+
+    def set_embed_metadata(self, enabled: bool) -> None:
+        self.embed_metadata = enabled
+
+    def set_embed_thumbnail(self, enabled: bool) -> None:
+        self.embed_thumbnail = enabled
+
+    def set_skip_duplicates(self, enabled: bool) -> None:
+        self.skip_duplicates = enabled
 
     def toggle_advanced(self) -> None:
         self.advanced_open = not self.advanced_open
