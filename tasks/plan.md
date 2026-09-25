@@ -120,3 +120,252 @@ As tarefas detalhadas e checkpoints ficam em `tasks/todo.md`.
 ## Open Questions
 
 - Nenhuma bloqueia o MVP. Formatos adicionais, instalador e integrações autenticadas permanecem fora do escopo.
+
+---
+
+# Extensão: biblioteca organizada e metadados por faixa
+
+## Objetivo
+
+Transformar cada execução bem-sucedida em uma playlist portátil e organizada: uma pasta própria, um MP3 por música, capa e os metadados disponíveis da fonte. Quando o CSV informar `title` e/ou `artist`, esses valores são a fonte de verdade; os campos ausentes continuam sendo preenchidos pelo `yt-dlp` quando a origem os fornecer.
+
+O resultado desejado para uma playlist chamada `Rock 2000` será:
+
+```text
+<pasta-escolhida>/
+└── Rock 2000/
+    ├── 001 - Linkin Park - Faint.mp3
+    ├── 002 - Eminem - Till I Collapse.mp3
+    ├── Rock 2000.m3u
+    ├── Rock 2000.m3u8
+    └── Rock 2000-report.json
+```
+
+As playlists `.m3u` e `.m3u8` continuarão usando caminhos relativos; portanto, a pasta inteira pode ser movida e aberta em players compatíveis. ZIP, banco de dados, conta, API de catálogo e busca paga não fazem parte desta extensão.
+
+## Limites honestos
+
+- Não há como garantir que toda fonte publique título, artista, álbum, data e capa corretos. O aplicativo grava somente os campos que a fonte disponibilizar e nunca inventa dados.
+- Em uma busca textual, `ytsearch1:` seleciona o primeiro resultado da fonte. Para máxima precisão, o usuário deve fornecer URL, `title` e `artist` no CSV.
+- Uma URL de MP3 direta pode não disponibilizar metadados nem capa. Nesse caso, título/artista do CSV são preservados e os demais campos permanecem vazios.
+- A capa e a incorporação de metadados são melhorias opcionais: uma falha nelas não pode descartar um MP3 de áudio que já foi criado com sucesso.
+
+## Contrato de entrada e prioridade
+
+O formato CSV já aceito permanece pequeno e compatível:
+
+```csv
+title,artist,url
+Faint,Linkin Park,https://www.youtube.com/watch?v=...
+Till I Collapse,Eminem,https://www.youtube.com/watch?v=...
+```
+
+| Campo final | Prioridade | Comportamento |
+| --- | --- | --- |
+| Título | `title` explícito > metadado da fonte > consulta textual | Nunca substituir um `title` do CSV. |
+| Artista | `artist` explícito > metadado da fonte | Nunca substituir um `artist` do CSV. |
+| Álbum, data/ano, gênero e campos adicionais | Fonte | Gravar somente quando o `yt-dlp` disponibilizar. |
+| Número da faixa | Ordem de entrada | Gravar como `001`, `002` etc. e manter a mesma ordem no nome/playlist. |
+| Capa | Miniatura da fonte | Incorporar quando suportada; ausência ou falha é aviso, não falha da faixa. |
+| URL de origem | URL fornecida ou resolvida | Registrar no relatório para auditoria, sem expor cookies ou credenciais. |
+
+## Decisões técnicas mínimas
+
+1. Manter `yt-dlp` como único provedor de busca, download e metadados; não adicionar serviços, chaves ou dependências.
+2. Usar `--embed-metadata` e `--embed-thumbnail` para que o próprio `yt-dlp` grave os campos e a capa disponíveis no MP3. O projeto já depende de `mutagen`, também requerido pelo `yt-dlp` em certos casos de capa.
+3. Depois da aquisição, usar o escritor local existente somente para aplicar as substituições explícitas do usuário e o número da faixa. Ele não deve apagar campos incorporados que não foram explicitamente substituídos.
+4. Criar uma subpasta validada por execução dentro da pasta escolhida. Todos os MP3s, playlists e relatório devem ser gravados nela, nunca na raiz da biblioteca.
+5. Manter `write_metadata` como etapa tolerante a falhas. O relatório deve distinguir `download_failed` de `metadata_warning`.
+
+## Tarefas atômicas
+
+### Task M1 — Preservar os dados explícitos da importação
+
+**Descrição:** Estender o contrato normalizado de faixa para conservar `title` e `artist` separados de `query` e `url`, sem quebrar TXT, M3U e JSON existentes.
+
+**Mudanças:**
+
+- Adicionar campos opcionais e imutáveis para título e artista em `TrackRequest`.
+- No CSV, preservar as colunas já suportadas e gerar a consulta somente para busca quando não houver URL.
+- No JSON, preservar `title` e `artist` se já forem aceitos no item; nos demais formatos, deixá-los ausentes.
+- Manter mensagens de erro, ordem e deduplicação atuais.
+
+**Critérios de aceitação:**
+
+- [ ] Uma linha CSV `Faint,Linkin Park,<url>` chega ao serviço com título, artista e URL separados.
+- [ ] Uma consulta pura continua funcionando e não ganha artista/título inventados.
+- [ ] Arquivos TXT, M3U, JSON e CSV atuais mantêm o comportamento anterior.
+
+**Testes:**
+
+- [ ] Casos unitários para CSV com URL, CSV sem URL, JSON com/sem campos e Unicode.
+- [ ] Regressão dos testes de importação completos, sem rede.
+
+**Arquivos prováveis:** `models.py`, `imports.py`, testes de importação.
+
+### Task M2 — Isolar e validar a pasta da playlist
+
+**Descrição:** Criar uma pasta de destino por execução usando o nome da playlist, sem permitir escrita fora da raiz que o usuário escolheu e sem sobrescrever uma execução anterior.
+
+**Mudanças:**
+
+- Implementar alocação central de diretório seguro, usando a sanitização existente e sufixos previsíveis de colisão (`Nome`, `Nome (2)`, ...).
+- Resolver a pasta e verificar que ela permanece filha da raiz selecionada antes de criar arquivos.
+- Passar esse diretório único ao downloader e ao gerador de artefatos.
+- Expor o diretório efetivo no resultado do serviço para a interface abrir exatamente a pasta da playlist, não a raiz da biblioteca.
+
+**Critérios de aceitação:**
+
+- [ ] Duas execuções com o mesmo nome não misturam nem sobrescrevem músicas.
+- [ ] Todos os MP3s, `.m3u`, `.m3u8` e relatório ficam na mesma subpasta.
+- [ ] Nome malicioso, reservado no Windows ou com traversal não escapa da raiz.
+
+**Testes:**
+
+- [ ] Caminho normal, Unicode, nomes reservados, traversal e colisões.
+- [ ] Integração de serviço com duas faixas falsas confirma arquivos separados e artefatos no diretório correto.
+
+**Arquivos prováveis:** `output.py`, `service.py`, `models.py`, `tests/test_output.py`, `tests/test_service.py`.
+
+### Task M3 — Pedir metadados e capa ao provedor já instalado
+
+**Descrição:** Ajustar o comando de aquisição para solicitar incorporação de metadados e miniatura, sem alterar a política de execução segura do subprocesso.
+
+**Mudanças:**
+
+- Acrescentar `--embed-metadata` e `--embed-thumbnail` à lista de argumentos, mantendo `shell=False`, `--`, timeout e caminho de FFmpeg atuais.
+- Garantir que a saída resolvida continue sendo capturada para o relatório.
+- Classificar erro de pós-processamento de metadados/capa como aviso quando o MP3 final validado existir; erros de download/conversão continuam sendo falhas da faixa.
+- Não gerar `.info.json`, imagens soltas ou arquivos de cache no diretório final.
+
+**Critérios de aceitação:**
+
+- [ ] O comando contém as duas opções de incorporação e ainda termina com `-- <origem>`.
+- [ ] Um retorno de pós-processamento com MP3 final preserva o áudio e registra aviso acionável.
+- [ ] Um retorno sem MP3 final permanece falha, sem artefato falso na playlist.
+
+**Testes:**
+
+- [ ] Teste do comando exato, inclusive URL e `ytsearch1:`.
+- [ ] Runners falsos para sucesso, falha de download e falha opcional de pós-processamento.
+- [ ] Nenhum teste chama YouTube, rede ou FFmpeg real.
+
+**Arquivos prováveis:** `downloader.py`, `models.py`, `tests/test_commands.py`, `tests/test_single_download.py`.
+
+### Task M4 — Aplicar precedência e completar as tags locais
+
+**Descrição:** Evoluir o escritor de ID3 para aplicar somente substituições confiáveis do usuário, conservar campos já incorporados e escrever o número de faixa.
+
+**Mudanças:**
+
+- Alterar a API de metadados para aceitar título/artista opcionais e número de faixa.
+- Quando título/artista explícitos existirem, substituí-los no MP3; quando não existirem, preservar o que o provedor já escreveu e usar a consulta somente como último recurso para título.
+- Escrever `TRCK` a partir da ordem de entrada; manter álbum, data, gênero e capa existentes se não houver valor explícito correspondente.
+- Retornar aviso estruturado, sem apagar áudio, quando `mutagen` não conseguir editar um arquivo válido.
+
+**Critérios de aceitação:**
+
+- [ ] CSV com `title` e `artist` sempre vence dados conflituosos incorporados pela fonte.
+- [ ] Álbum, ano/data e capa incorporados não desaparecem após a etapa local.
+- [ ] Um MP3 sem tags recebe ao menos título de fallback e número da faixa.
+- [ ] Falha de tag deixa o MP3 e o restante da playlist utilizáveis.
+
+**Testes:**
+
+- [ ] Fixture MP3/ID3 com campos de fonte; validar precedência, preservação e `TRCK`.
+- [ ] Casos sem CSV, sem metadados de origem e exceção do escritor.
+
+**Arquivos prováveis:** `metadata.py`, `service.py`, `tests/test_metadata.py`, `tests/test_service.py`.
+
+### Task M5 — Ajustar artefatos, interface e mensagens de conclusão
+
+**Descrição:** Fazer a interface apresentar claramente a pasta criada, o resultado por faixa e avisos de metadados sem transformar-os em falhas de download.
+
+**Mudanças:**
+
+- Criar `.m3u`, `.m3u8` e relatório depois de todas as faixas no diretório efetivo.
+- Acrescentar ao relatório por faixa: caminho relativo, origem resolvida, status de download e aviso de metadados, quando houver.
+- Atualizar o resumo/UI para mostrar “X músicas criadas” e “Y avisos de metadados”; a ação de abrir pasta aponta para a subpasta validada.
+- Preservar nomes relativos em playlists e evitar regravar entradas de faixas com falha.
+
+**Critérios de aceitação:**
+
+- [ ] Uma execução de duas faixas produz dois MP3s distintos, duas playlists e um relatório na subpasta.
+- [ ] Abrir pasta abre a subpasta da playlist; abrir playlist abre o `.m3u8` validado.
+- [ ] Aviso de metadados aparece como aviso, não reduz a contagem de músicas criadas.
+
+**Testes:**
+
+- [ ] Integração completa com fake downloader e fake metadados, incluindo falha opcional.
+- [ ] Testes de ações de conclusão para a subpasta e de relatório para status mistos.
+
+**Arquivos prováveis:** `service.py`, `artifacts.py`, `app.py`, `ui_state.py`, testes de serviço/artefatos/UI.
+
+### Task M6 — Documentar o fluxo final e validar sem rede
+
+**Descrição:** Atualizar a porta de entrada pública do projeto com o formato CSV recomendado, a estrutura de saída, o que é garantido e os limites de metadados.
+
+**Mudanças:**
+
+- Seguir obrigatoriamente `github-readme-writer` antes de alterar `README.md`.
+- Explicar o fluxo simples: importar CSV, escolher pasta, criar playlist, abrir a `.m3u8` em qualquer player compatível.
+- Documentar prioridade CSV > fonte, busca textual como conveniência e ausência possível de dados em MP3s diretos.
+- Não anunciar compatibilidade, campos ou metadados que os testes/implementação não comprovem.
+
+**Critérios de aceitação:**
+
+- [ ] Um usuário novo consegue criar uma pasta organizada seguindo apenas o README.
+- [ ] O README não promete correspondência perfeita em buscas textuais nem metadados inexistentes na fonte.
+
+**Testes e verificação:**
+
+- [ ] `py -m pytest` e `py -m ruff check .` passam.
+- [ ] Smoke manual com duas fontes autorizadas: verificar dois MP3s, tags em um player/editor e playlist `.m3u8` após mover a pasta.
+- [ ] Revisão final confirma que nenhuma mídia de teste não licenciada entra no repositório.
+
+**Arquivos prováveis:** `README.md`, `tasks/plan.md`, `tasks/todo.md`.
+
+## Ordem, checkpoints e dependências
+
+| Ordem | Tarefa | Depende de | Resultado verificável |
+| --- | --- | --- | --- |
+| 1 | M1 | — | Campos explícitos chegam ao serviço. |
+| 2 | M2 | M1 | Uma execução possui diretório próprio seguro. |
+| 3 | M3 | M2 | Downloader pede campos/capa sem rede nos testes. |
+| 4 | M4 | M1, M3 | Tags obedecem à precedência e preservam áudio. |
+| 5 | M5 | M2, M4 | Resultado, relatório e UI refletem a pasta real. |
+| 6 | M6 | M5 | Documentação e validação final coerentes. |
+
+**Checkpoint M-A (após M2):** importação preserva título/artista; nenhuma saída ou colisão escapa da raiz.
+
+**Checkpoint M-B (após M4):** testes de downloader e ID3 provam que download, capa/metadados opcionais e precedência não perdem áudio.
+
+**Checkpoint M-C (após M6):** suíte, Ruff e smoke autorizado comprovam pasta portátil com MP3s separados.
+
+## Matriz de testes
+
+| Camada | Casos obrigatórios | Dependência externa |
+| --- | --- | --- |
+| Importação | CSV explícito, CSV só consulta, JSON, TXT, M3U, Unicode, linhas inválidas | Nenhuma |
+| Saída | subpasta, colisão, traversal, nomes Windows, arquivos relativos | Nenhuma |
+| Downloader | argumentos, URL, busca, sucesso, erro e pós-processamento opcional | Fake runner |
+| ID3 | precedência, preservação, número, ausência de tags e erro do escritor | Fixture local |
+| Serviço | duas faixas, falha intermediária, aviso de tags, relatório | Fakes + diretório temporário |
+| UI | contadores, abrir subpasta, abrir `.m3u8`, recuperação | Serviço falso |
+| Manual | duas fontes autorizadas e player real após mover pasta | Rede/FFmpeg, opt-in |
+
+## Riscos e tratamento
+
+| Risco | Tratamento |
+| --- | --- |
+| Fonte não publica dados confiáveis | Preferir CSV explícito e nunca inventar campos. |
+| Busca escolhe vídeo errado | Exibir/registrar URL resolvida e recomendar URL no CSV. |
+| Capa ou tags falham | Conservar MP3, registrar aviso e continuar a fila. |
+| `yt-dlp` atualizado muda pós-processamento | Fixar testes de argumentos e classificar por existência do MP3 final, não somente por texto de stderr. |
+| Pasta existente | Alocar sufixo sem sobrescrever conteúdo anterior. |
+| Player não entende `.m3u8` | Manter também `.m3u` e informar que o áudio é MP3 local comum. |
+
+## Fontes técnicas verificadas
+
+- A documentação oficial do `yt-dlp` descreve `--embed-metadata`, os campos que ele mapeia (título, artista, álbum, data, faixa etc.) e `--embed-thumbnail` como capa incorporada.
+- O projeto já usa `mutagen`; a documentação do `yt-dlp` o lista como dependência relevante para incorporação de miniatura em certos formatos.

@@ -357,3 +357,139 @@
 - [ ] Suíte, Ruff, execução do aplicativo e smoke test autorizado passam.
 - [ ] Nenhum segredo, cookie, mídia de teste não licenciada ou arquivo parcial permanece.
 - [ ] Human review and approval recorded before publication.
+
+---
+
+# Metadata & Organized Output Extension
+
+## Task M1: Preserve explicit import metadata
+
+**Description:** Keep CSV/JSON title and artist separate from the download query and URL.
+
+**Acceptance criteria:**
+
+- [ ] CSV `title`, `artist`, and `url` reach the service independently.
+- [ ] Query-only inputs retain current behavior.
+- [ ] TXT, M3U, JSON, CSV ordering and invalid-row reporting do not regress.
+
+**Verification:**
+
+- [ ] Focused parser tests for CSV, JSON and fallback query behavior.
+- [ ] `py -m pytest` and `py -m ruff check .`.
+
+**Dependencies:** None
+
+**Estimated scope:** Small (3 files)
+
+## Task M2: Create one safe folder per playlist
+
+**Description:** Allocate a collision-safe, validated subfolder inside the chosen output root and use it for every result artifact.
+
+**Acceptance criteria:**
+
+- [ ] Each run writes its MP3s, `.m3u`, `.m3u8`, and report into its own folder.
+- [ ] Name collisions use a suffix and never overwrite a prior run.
+- [ ] Traversal and reserved Windows names cannot escape the selected root.
+
+**Verification:**
+
+- [ ] Focused output-path and service integration tests.
+- [ ] `py -m pytest` and `py -m ruff check .`.
+
+**Dependencies:** Task M1
+
+**Estimated scope:** Medium (5 files)
+
+## Checkpoint M-A: Organized output boundary
+
+- [ ] M1 and M2 focused tests pass.
+- [ ] A fake two-track run creates two MP3 paths and all artifacts in one safe subfolder.
+- [ ] No generated path can escape the user-selected root.
+
+## Task M3: Request source metadata and cover through yt-dlp
+
+**Description:** Ask the existing provider to embed source metadata and cover art while retaining safe subprocess execution.
+
+**Acceptance criteria:**
+
+- [ ] Download arguments include `--embed-metadata` and `--embed-thumbnail`.
+- [ ] An optional post-process error with a validated final MP3 becomes a warning.
+- [ ] A missing final MP3 is still a download failure.
+
+**Verification:**
+
+- [ ] Fake-runner tests for command, success, failure, and optional post-processing warning.
+- [ ] `py -m pytest` and `py -m ruff check .`.
+
+**Dependencies:** Task M2
+
+**Estimated scope:** Medium (4 files)
+
+## Task M4: Apply metadata precedence without losing audio
+
+**Description:** Apply explicit title/artist and input order as ID3 overrides while preserving source-provided fields that were not overridden.
+
+**Acceptance criteria:**
+
+- [ ] CSV title/artist override conflicting source tags.
+- [ ] Existing album, date/year, genre, and cover persist when not overridden.
+- [ ] `TRCK` reflects input order.
+- [ ] A tag-write error preserves the MP3 and is reportable as a warning.
+
+**Verification:**
+
+- [ ] Local ID3 fixture tests for precedence, preservation, fallback, and writer failure.
+- [ ] `py -m pytest` and `py -m ruff check .`.
+
+**Dependencies:** Tasks M1 and M3
+
+**Estimated scope:** Medium (4 files)
+
+## Checkpoint M-B: Metadata resilience
+
+- [ ] M3/M4 focused tests pass without network.
+- [ ] Source tags/capa are requested, explicit fields win, and a tag warning never removes valid audio.
+
+## Task M5: Surface the organized result in artifacts and UI
+
+**Description:** Report metadata warnings, preserve relative playlists, and make completion actions point to the playlist folder.
+
+**Acceptance criteria:**
+
+- [ ] Report distinguishes downloaded, failed, and metadata-warning tracks.
+- [ ] Opening the folder targets the validated subfolder.
+- [ ] UI count treats a metadata warning as a created song, not a failed download.
+
+**Verification:**
+
+- [ ] Service, artifact, and UI-completion tests with fake runner/writer.
+- [ ] `py -m pytest` and `py -m ruff check .`.
+
+**Dependencies:** Tasks M2 and M4
+
+**Estimated scope:** Medium (5 files)
+
+## Task M6: Document and perform final verification
+
+**Description:** Update the public README and verify the user-facing flow, following the mandatory README skill.
+
+**Acceptance criteria:**
+
+- [ ] README documents the recommended CSV, folder structure, priority rules, and limitations accurately.
+- [ ] No unsupported guarantee about automatic matching or source metadata remains.
+
+**Verification:**
+
+- [ ] `py -m pytest` and `py -m ruff check .`.
+- [ ] Authorized manual smoke: two separate MP3s, tags in a player/editor, and `.m3u8` survives moving the folder.
+- [ ] Verify no unlicensed media fixture is committed.
+
+**Dependencies:** Task M5
+
+**Estimated scope:** Small (3 files)
+
+## Checkpoint M-C: Extension complete
+
+- [ ] Every M task is complete with focused tests.
+- [ ] Full suite and Ruff pass.
+- [ ] Manual authorized smoke confirms a portable, organized playlist folder.
