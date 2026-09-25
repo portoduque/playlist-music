@@ -46,7 +46,7 @@ O código verifica se o FFmpeg está disponível e se o módulo instalado do `yt
 
 ### Metadados internos
 
-O módulo interno grava título, artista e álbum em tags ID3 e pode incorporar uma capa PNG ou JPEG. Metadados e capas são opcionais: uma imagem inválida ou falha de escrita é relatada sem excluir nem invalidar o MP3 já existente. O serviço headless aplica o texto da solicitação como título; dados mais ricos da fonte serão conectados em uma etapa posterior.
+O download pede ao `yt-dlp` para incorporar os metadados e a capa que a fonte disponibilizar no MP3. O módulo local também grava título, artista e álbum em tags ID3 e pode incorporar uma capa PNG ou JPEG. Metadados e capas são opcionais: se a etapa de pós-processamento falhar, um MP3 final válido é mantido e o aviso é registrado; dados explícitos do CSV terão prioridade em uma etapa posterior.
 
 ### Playlists e relatório internos
 

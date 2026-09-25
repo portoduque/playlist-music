@@ -47,6 +47,21 @@ def test_reports_command_failure_with_limited_error_output(tmp_path) -> None:
     assert len(result.error or "") <= 1_000
 
 
+def test_keeps_a_final_mp3_when_post_processing_returns_an_error(tmp_path) -> None:
+    def runner(command, **_kwargs):
+        (tmp_path / "song.mp3").write_bytes(b"audio")
+        return subprocess.CompletedProcess(command, 1, stdout="https://example.com/song\n", stderr="cover failed")
+
+    result = run_single_download(
+        TrackRequest(1, "Song"), tmp_path, "song.mp3", Path("ffmpeg"), runner=runner
+    )
+
+    assert result.succeeded is True
+    assert result.output_path == tmp_path / "song.mp3"
+    assert result.source == "https://example.com/song"
+    assert result.error == "Post-processing warning: cover failed"
+
+
 def test_reports_timeout_without_a_final_file(tmp_path) -> None:
     def runner(command, **_kwargs):
         raise subprocess.TimeoutExpired(command, 30)

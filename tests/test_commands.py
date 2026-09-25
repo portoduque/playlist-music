@@ -59,6 +59,8 @@ def test_builds_literal_arguments_for_queries_with_shell_characters(tmp_path) ->
     assert command[command.index("--audio-format") + 1] == "mp3"
     assert command[command.index("--audio-quality") + 1] == "0"
     assert command[command.index("--ffmpeg-location") + 1] == "C:\\ffmpeg\\ffmpeg.exe"
+    assert "--embed-metadata" in command
+    assert "--embed-thumbnail" in command
 
 
 @pytest.mark.parametrize("quality, expected", [("balanced", "5"), ("compact", "8")])

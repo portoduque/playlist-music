@@ -72,6 +72,8 @@ def build_download_command(
         "mp3",
         "--audio-quality",
         audio_quality,
+        "--embed-metadata",
+        "--embed-thumbnail",
         "--ffmpeg-location",
         str(ffmpeg_path),
         "--output",
@@ -110,11 +112,21 @@ def run_single_download(
     except OSError:
         return AcquisitionResult(request, False, None, None, "Download command could not start.")
 
+    has_final_file = final_path.is_file() and final_path.resolve().parent == output_root
+    if result.returncode and has_final_file:
+        detail = result.stderr.strip()[-900:]
+        return AcquisitionResult(
+            request,
+            True,
+            final_path,
+            _resolved_source(result.stdout, request.url or request.query),
+            f"Post-processing warning: {detail or 'metadata or cover could not be embedded.'}",
+        )
     if result.returncode:
         detail = result.stderr.strip()[-900:]
         error = f"Download command failed: {detail}" if detail else "Download command failed."
         return AcquisitionResult(request, False, None, None, error)
-    if not final_path.is_file() or final_path.resolve().parent != output_root:
+    if not has_final_file:
         return AcquisitionResult(request, False, None, None, "Expected MP3 file was not created.")
 
     fallback = request.url or request.query

@@ -412,14 +412,14 @@
 
 **Acceptance criteria:**
 
-- [ ] Download arguments include `--embed-metadata` and `--embed-thumbnail`.
-- [ ] An optional post-process error with a validated final MP3 becomes a warning.
-- [ ] A missing final MP3 is still a download failure.
+- [x] Download arguments include `--embed-metadata` and `--embed-thumbnail`.
+- [x] An optional post-process error with a validated final MP3 becomes a warning.
+- [x] A missing final MP3 is still a download failure.
 
 **Verification:**
 
-- [ ] Fake-runner tests for command, success, failure, and optional post-processing warning.
-- [ ] `py -m pytest` and `py -m ruff check .`.
+- [x] Fake-runner tests for command, success, failure, and optional post-processing warning.
+- [x] `py -m pytest` and `py -m ruff check .`.
 
 **Dependencies:** Task M2
 

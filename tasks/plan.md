@@ -240,15 +240,15 @@ Till I Collapse,Eminem,https://www.youtube.com/watch?v=...
 
 **Critérios de aceitação:**
 
-- [ ] O comando contém as duas opções de incorporação e ainda termina com `-- <origem>`.
-- [ ] Um retorno de pós-processamento com MP3 final preserva o áudio e registra aviso acionável.
-- [ ] Um retorno sem MP3 final permanece falha, sem artefato falso na playlist.
+- [x] O comando contém as duas opções de incorporação e ainda termina com `-- <origem>`.
+- [x] Um retorno de pós-processamento com MP3 final preserva o áudio e registra aviso acionável.
+- [x] Um retorno sem MP3 final permanece falha, sem artefato falso na playlist.
 
 **Testes:**
 
-- [ ] Teste do comando exato, inclusive URL e `ytsearch1:`.
-- [ ] Runners falsos para sucesso, falha de download e falha opcional de pós-processamento.
-- [ ] Nenhum teste chama YouTube, rede ou FFmpeg real.
+- [x] Teste do comando exato, inclusive URL e `ytsearch1:`.
+- [x] Runners falsos para sucesso, falha de download e falha opcional de pós-processamento.
+- [x] Nenhum teste chama YouTube, rede ou FFmpeg real.
 
 **Arquivos prováveis:** `downloader.py`, `models.py`, `tests/test_commands.py`, `tests/test_single_download.py`.
 
