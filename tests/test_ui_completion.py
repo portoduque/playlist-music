@@ -69,7 +69,10 @@ def test_summarizes_success_failure_and_duplicates() -> None:
 
     actions = completion_actions(result, None)
 
-    assert actions.message == "Finished: 1 downloaded, 1 failed, 1 duplicate skipped."
+    assert actions.message == (
+        "Finished: 1 downloaded, 1 failed, 1 duplicate skipped. "
+        "See resultado.txt for the reason for each failed track."
+    )
     assert actions.folder is None
     assert actions.playlist is None
 
@@ -84,7 +87,10 @@ def test_summarizes_zero_successes() -> None:
 
     actions = completion_actions(result, None)
 
-    assert actions.message == "Finished: no tracks downloaded; 1 failed, 1 duplicate skipped."
+    assert actions.message == (
+        "Finished: no tracks downloaded; 1 failed, 1 duplicate skipped. "
+        "See resultado.txt for the reason for each failed track."
+    )
 
 
 def test_summarizes_metadata_warnings_without_counting_a_failure() -> None:

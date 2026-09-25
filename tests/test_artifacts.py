@@ -63,6 +63,25 @@ def test_reports_failures_and_duplicates_without_adding_them_to_playlists(tmp_pa
     assert "key=secret" not in report
 
 
+def test_starts_the_report_with_a_readable_failure_summary(tmp_path) -> None:
+    root = tmp_path / "playlist"
+    request = TrackRequest(1, "Faixa indisponível")
+    queue = QueueResult(
+        [
+            QueueItemResult(
+                request,
+                "failed",
+                AcquisitionResult(request, False, None, None, "Source is unavailable."),
+            )
+        ]
+    )
+
+    report = write_artifacts(root, "playlist", queue).report.read_text(encoding="utf-8")
+
+    assert report.startswith("RESULTADO DA PLAYLIST\n\nConcluídas: 0 | Falhas: 1 | Duplicadas: 0\n")
+    assert "FALHAS\n\n- Faixa indisponível\n  Motivo: Source is unavailable." in report
+
+
 def test_reports_metadata_warnings_without_excluding_successful_audio(tmp_path) -> None:
     root = tmp_path / "playlist"
     root.mkdir()
@@ -89,8 +108,9 @@ def test_reports_metadata_warnings_without_excluding_successful_audio(tmp_path) 
     artifacts = write_artifacts(root, "playlist", queue)
 
     assert artifacts.m3u8.read_text(encoding="utf-8") == "#EXTM3U\n001 - Song.mp3\n"
-    assert "warnings" in artifacts.report.read_text(encoding="utf-8").splitlines()[0]
-    assert "Could not write audio tags." in artifacts.report.read_text(encoding="utf-8")
+    report = artifacts.report.read_text(encoding="utf-8")
+    assert "DETALHES TÉCNICOS (TSV)\nquery\tstatus\tsource\tfile\terror\twarnings" in report
+    assert "Could not write audio tags." in report
 
 
 def test_ignores_a_success_path_outside_the_playlist_folder(tmp_path) -> None:

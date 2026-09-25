@@ -32,7 +32,7 @@ def write_artifacts(root: Path, playlist_name: str, queue: QueueResult) -> Artif
     content = "#EXTM3U\n" + "".join(f"{entry}\n" for entry in entries)
     paths.m3u8.write_text(content, encoding="utf-8", newline="\n")
     paths.m3u.write_text(content, encoding="utf-8-sig", newline="\n")
-    report_lines = ["query\tstatus\tsource\tfile\terror\twarnings"]
+    report_lines = _report_summary(queue) + ["", "DETALHES TÉCNICOS (TSV)", "query\tstatus\tsource\tfile\terror\twarnings"]
     for item, relative_path in zip(queue.items, relative_paths, strict=True):
         acquisition = item.acquisition
         source = acquisition.source if acquisition else ""
@@ -49,6 +49,25 @@ def write_artifacts(root: Path, playlist_name: str, queue: QueueResult) -> Artif
         report_lines.append("\t".join(values))
     paths.report.write_text("\n".join(report_lines) + "\n", encoding="utf-8", newline="\n")
     return paths
+
+
+def _report_summary(queue: QueueResult) -> list[str]:
+    succeeded = sum(item.status == "succeeded" for item in queue.items)
+    failed_items = [item for item in queue.items if item.status == "failed"]
+    duplicates = sum(item.status == "duplicate" for item in queue.items)
+    lines = [
+        "RESULTADO DA PLAYLIST",
+        "",
+        f"Concluídas: {succeeded} | Falhas: {len(failed_items)} | Duplicadas: {duplicates}",
+    ]
+    if not failed_items:
+        return lines
+
+    lines.extend(["", "FALHAS", ""])
+    for item in failed_items:
+        reason = item.acquisition.error if item.acquisition else "A faixa não foi processada."
+        lines.extend([f"- {_redact_urls(item.request.query)}", f"  Motivo: {_redact_urls(reason)}"])
+    return lines
 
 
 def _relative_output_path(root: Path, item: QueueItemResult) -> Path | None:

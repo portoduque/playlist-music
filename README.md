@@ -84,7 +84,7 @@ Em ordem de prioridade, título e artista informados no CSV ou JSON vencem os da
 
 ### Playlists e relatório internos
 
-O módulo interno gera `.m3u8` em UTF-8 e `.m3u` em UTF-8 com BOM, ambos com caminhos relativos para que a pasta possa ser movida inteira. Somente MP3s finais e confinados à pasta entram nas playlists. O `resultado.txt` mantém a ordem da fila e registra consulta, estado, origem, arquivo, erro e avisos de metadados; parâmetros e fragmentos de URLs são removidos antes do registro. Um aviso não exclui uma faixa já concluída. O serviço headless já conecta importação normalizada, preflight, fila, tags e artefatos à tela por uma thread de trabalho segura.
+O módulo interno gera `.m3u8` em UTF-8 e `.m3u` em UTF-8 com BOM, ambos com caminhos relativos para que a pasta possa ser movida inteira. Somente MP3s finais e confinados à pasta entram nas playlists. Quando houver falhas, `resultado.txt` começa com uma seção legível contendo a faixa e o motivo registrado; o resumo da tela também indica esse arquivo. Abaixo dela, o arquivo preserva os detalhes técnicos tabulados de toda a fila. Parâmetros e fragmentos de URLs são removidos antes do registro. Um aviso não exclui uma faixa já concluída. O serviço headless já conecta importação normalizada, preflight, fila, tags e artefatos à tela por uma thread de trabalho segura.
 
 ## Visão do MVP
 
@@ -120,7 +120,7 @@ Esse comando instala as dependências atuais do projeto: `yt-dlp`, Mutagen, Pyte
 3. Confira a contagem de itens válidos e inválidos. Corrija os itens inválidos antes de criar a playlist.
 4. Escolha a pasta de saída, mantenha a qualidade **recommended** ou selecione **balanced** ou **compact** em **More options**.
 5. Clique em **Create playlist**. A janela continua utilizável enquanto o progresso é exibido.
-6. Ao terminar, leia o resumo e use **Open folder** ou **Open playlist** quando estiverem disponíveis.
+6. Ao terminar, leia o resumo e use **Open folder** ou **Open playlist** quando estiverem disponíveis. Se alguma faixa falhar, abra `resultado.txt` na pasta da playlist: a seção **FALHAS** informa o motivo de cada uma.
 
 A pasta escolhida recebe uma nova subpasta com o nome da playlist. Ela contém os MP3s concluídos, `resultado.txt`, uma playlist `.m3u8` em UTF-8 e uma `.m3u` em UTF-8 com BOM. Os dois arquivos de playlist usam caminhos relativos; mova essa subpasta inteira para mantê-los reproduzíveis.
 
@@ -132,7 +132,7 @@ A pasta escolhida recebe uma nova subpasta com o nome da playlist. Ela contém o
 | `yt-dlp version check failed.` | Reinstale as dependências com `py -m pip install -e ".[dev]"` e tente novamente. |
 | O CSV não deixa confirmar | Vincule pelo menos **Title** ou **URL** e não use a mesma coluna em mais de um campo. |
 | A contagem mostra itens inválidos | Corrija ou remova as linhas indicadas antes de criar; o aplicativo não inicia uma lista parcialmente inválida. |
-| Uma faixa falha | Abra `resultado.txt` na pasta de saída. As outras faixas continuam sendo processadas. |
+| Uma faixa falha | Abra `resultado.txt` na pasta da playlist. A seção **FALHAS** identifica a faixa e o motivo registrado; as outras continuam sendo processadas. |
 | Nenhuma faixa é concluída | Revise `resultado.txt`, a disponibilidade da fonte e se ela é autorizada e sem DRM. |
 
 ## Verificação
