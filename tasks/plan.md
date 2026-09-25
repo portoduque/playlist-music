@@ -479,22 +479,22 @@ C1 prévia e sugestões puras
 
 **Critérios de aceitação:**
 
-- [ ] README explica que CSV sempre abre uma confirmação, quais campos o sistema entende e como ignorar colunas extras.
-- [ ] README não promete reconhecimento de qualquer cabeçalho nem suporte a Excel/perfis salvos.
+- [x] README explica que CSV sempre abre uma confirmação, quais campos o sistema entende e como ignorar colunas extras.
+- [x] README não promete reconhecimento de qualquer cabeçalho nem suporte a Excel/perfis salvos.
 - [ ] O plano e a lista de tarefas registram as provas automatizadas e manuais realizadas.
 
 **Testes e verificação:**
 
-- [ ] `py -m pytest` e `py -m ruff check .` passam.
+- [x] `py -m pytest` e `py -m ruff check .` passam (79 testes em 25/09/2026).
 - [ ] Smoke manual confirma importação, correção de vínculo, cancelamento e preservação da lista anterior.
-- [ ] Revisão final confirma que nenhum CSV pessoal, arquivo de áudio ou segredo entra no repositório.
+- [x] Revisão final confirma que nenhum CSV pessoal, arquivo de áudio ou segredo entra no repositório (25/09/2026).
 
 **Arquivos prováveis:** `README.md`, `tasks/plan.md`, `tasks/todo.md`.
 
 ### Checkpoint C-B — Mapeamento pronto para uso
 
 - [ ] C1–C4 concluídas com testes focados.
-- [ ] Suíte e Ruff passam.
+- [x] Suíte e Ruff passam (79 testes em 25/09/2026).
 - [ ] O fluxo manual confirma sugestão, correção, confirmação e cancelamento.
 
 ## Matriz de testes

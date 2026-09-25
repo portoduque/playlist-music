@@ -568,15 +568,15 @@
 
 **Acceptance criteria:**
 
-- [ ] README explains confirmation, supported system fields, and ignored columns accurately.
-- [ ] README does not promise universal header recognition, Excel support, or saved profiles.
+- [x] README explains confirmation, supported system fields, and ignored columns accurately.
+- [x] README does not promise universal header recognition, Excel support, or saved profiles.
 - [ ] Plan records automated and manual verification evidence.
 
 **Verification:**
 
-- [ ] `py -m pytest` and `py -m ruff check .`.
+- [x] `py -m pytest` and `py -m ruff check .` (79 tests on 2026-09-25).
 - [ ] Manual smoke covers suggestion, correction, confirmation, and cancellation.
-- [ ] No personal CSV, audio file, or secret is committed.
+- [x] No personal CSV, audio file, or secret is committed (2026-09-25).
 
 **Dependencies:** Task C3
 
@@ -585,5 +585,5 @@
 ## Checkpoint C-B: CSV mapping complete
 
 - [ ] Tasks C1–C4 complete with focused checks.
-- [ ] Full suite and Ruff pass.
+- [x] Full suite and Ruff pass (79 tests on 2026-09-25).
 - [ ] Manual flow confirms suggestion, correction, confirmation, and cancellation.

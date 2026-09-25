@@ -27,7 +27,15 @@ title,artist,url
 Faint,Linkin Park,https://youtube.com/watch?v=SEU_ID_AUTORIZADO
 ```
 
-Substitua o valor de exemplo pela URL que você tem permissão para baixar. As colunas opcionais `album`, `date`, `genre` e `cover_url` complementam as tags quando esses dados não estiverem na fonte.
+Substitua o valor de exemplo pela URL que você tem permissão para baixar. Atualmente, o importador CSV entende somente `title`, `artist` e `url`; as demais colunas são ignoradas.
+
+#### Validação de colunas CSV
+
+Todo CSV abre uma janela de confirmação antes de substituir a lista atual. Ela mostra os cabeçalhos, até cinco linhas de prévia e permite vincular as três informações que o aplicativo entende: **Title**, **Artist** e **URL**. Cabeçalhos comuns em português e inglês são sugeridos automaticamente, mas a sugestão não é uma garantia: corrija os seletores quando necessário.
+
+É obrigatório vincular ao menos **Title** ou **URL**; **Artist** é opcional. Deixe um seletor em branco para não importar aquele campo. Colunas extras, como álbum, gênero, identificadores ou anotações, não entram na importação. **Cancel**, fechar a janela ou pressionar `Esc` mantém a lista que já estava no aplicativo.
+
+O fluxo não reconhece qualquer nome de coluna, não importa arquivos Excel (`.xlsx`/`.xls`) e não salva perfis de mapeamento.
 
 ```python
 from pathlib import Path
@@ -108,7 +116,7 @@ Esse comando instala as dependências atuais do projeto: `yt-dlp`, Mutagen, Pyte
 ## Uso
 
 1. Abra o aplicativo com `py -m playlist_music`.
-2. Informe o nome da playlist e cole uma consulta ou URL HTTP(S) por linha — ou escolha **Import file** para usar `.txt`, `.csv`, `.m3u`, `.m3u8` ou `.json`.
+2. Informe o nome da playlist e cole uma consulta ou URL HTTP(S) por linha — ou escolha **Import file** para usar `.txt`, `.csv`, `.m3u`, `.m3u8` ou `.json`. Para CSV, confira a prévia e os vínculos de coluna antes de confirmar.
 3. Confira a contagem de itens válidos e inválidos. Corrija os itens inválidos antes de criar a playlist.
 4. Escolha a pasta de saída, mantenha a qualidade **recommended** ou selecione **balanced** ou **compact** em **More options**.
 5. Clique em **Create playlist**. A janela continua utilizável enquanto o progresso é exibido.
@@ -122,6 +130,7 @@ A pasta escolhida recebe uma nova subpasta com o nome da playlist. Ela contém o
 | --- | --- |
 | `FFmpeg was not found on PATH.` | Instale o FFmpeg, adicione-o ao `PATH` e confirme com `ffmpeg -version`. |
 | `yt-dlp version check failed.` | Reinstale as dependências com `py -m pip install -e ".[dev]"` e tente novamente. |
+| O CSV não deixa confirmar | Vincule pelo menos **Title** ou **URL** e não use a mesma coluna em mais de um campo. |
 | A contagem mostra itens inválidos | Corrija ou remova as linhas indicadas antes de criar; o aplicativo não inicia uma lista parcialmente inválida. |
 | Uma faixa falha | Abra `resultado.txt` na pasta de saída. As outras faixas continuam sendo processadas. |
 | Nenhuma faixa é concluída | Revise `resultado.txt`, a disponibilidade da fonte e se ela é autorizada e sem DRM. |
