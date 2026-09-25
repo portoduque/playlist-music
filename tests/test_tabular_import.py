@@ -1,6 +1,6 @@
 """Behavioral tests for TXT and CSV imports."""
 
-from playlist_music.imports import parse_csv_file, parse_txt_file
+from playlist_music.imports import parse_csv_file, parse_txt_file, preview_csv_file
 
 
 def test_parses_utf8_sig_txt_with_the_pasted_text_rules(tmp_path) -> None:
@@ -64,3 +64,88 @@ def test_reports_a_csv_without_title_or_url_headers(tmp_path) -> None:
     assert [(issue.line_number, issue.message) for issue in result.issues] == [
         (1, "CSV header needs title or url.")
     ]
+
+
+def test_previews_csv_rows_and_suggests_portuguese_and_english_headers(tmp_path) -> None:
+    source = tmp_path / "songs.csv"
+    source.write_text(
+        " Música ,Banda,Link,Ignored\nSong 1,Artist 1,https://example.com/1,x\n"
+        "Song 2,Artist 2,https://example.com/2,y\n"
+        "Song 3,Artist 3,https://example.com/3,z\n"
+        "Song 4,Artist 4,https://example.com/4,w\n"
+        "Song 5,Artist 5,https://example.com/5,v\n"
+        "Song 6,Artist 6,https://example.com/6,u\n",
+        encoding="utf-8-sig",
+    )
+
+    preview = preview_csv_file(source)
+
+    assert preview.error is None
+    assert preview.headers == ("Música", "Banda", "Link", "Ignored")
+    assert preview.rows == (
+        ("Song 1", "Artist 1", "https://example.com/1", "x"),
+        ("Song 2", "Artist 2", "https://example.com/2", "y"),
+        ("Song 3", "Artist 3", "https://example.com/3", "z"),
+        ("Song 4", "Artist 4", "https://example.com/4", "w"),
+        ("Song 5", "Artist 5", "https://example.com/5", "v"),
+    )
+    assert preview.title_column == "Música"
+    assert preview.artist_column == "Banda"
+    assert preview.url_column == "Link"
+
+
+def test_rejects_empty_or_duplicate_csv_headers_in_preview(tmp_path) -> None:
+    empty_header = tmp_path / "empty-header.csv"
+    empty_header.write_text("title,,url\nSong,Artist,https://example.com\n", encoding="utf-8")
+    duplicate_header = tmp_path / "duplicate-header.csv"
+    duplicate_header.write_text("title, Title ,url\nSong,Again,https://example.com\n", encoding="utf-8")
+
+    empty_preview = preview_csv_file(empty_header)
+    duplicate_preview = preview_csv_file(duplicate_header)
+
+    assert empty_preview.error == "CSV headers cannot be empty."
+    assert duplicate_preview.error == "CSV headers must be unique."
+    assert empty_preview.headers == ()
+    assert duplicate_preview.rows == ()
+
+
+def test_reports_an_unreadable_csv_preview(tmp_path) -> None:
+    preview = preview_csv_file(tmp_path / "missing.csv")
+
+    assert preview.error == "Could not read CSV file."
+    assert preview.headers == ()
+
+
+def test_normalizes_header_separators_and_leaves_unknown_fields_unmapped(tmp_path) -> None:
+    source = tmp_path / "aliases.csv"
+    source.write_text(
+        "t_i_t_l_e,a-r-t-i-s-t,u r l,other\nSong,Artist,https://example.com,x\n",
+        encoding="utf-8",
+    )
+
+    preview = preview_csv_file(source)
+
+    assert (preview.title_column, preview.artist_column, preview.url_column) == (
+        "t_i_t_l_e",
+        "a-r-t-i-s-t",
+        "u r l",
+    )
+
+
+def test_leaves_missing_or_ambiguous_header_suggestions_unmapped(tmp_path) -> None:
+    missing = tmp_path / "missing.csv"
+    missing.write_text("one,two\nA,B\n", encoding="utf-8")
+    ambiguous = tmp_path / "ambiguous.csv"
+    ambiguous.write_text("title,song,artist,url\nA,B,C,https://example.com\n", encoding="utf-8")
+
+    missing_preview = preview_csv_file(missing)
+    ambiguous_preview = preview_csv_file(ambiguous)
+
+    assert (missing_preview.title_column, missing_preview.artist_column, missing_preview.url_column) == (
+        None,
+        None,
+        None,
+    )
+    assert ambiguous_preview.title_column is None
+    assert ambiguous_preview.artist_column == "artist"
+    assert ambiguous_preview.url_column == "url"

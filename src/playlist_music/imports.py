@@ -6,10 +6,15 @@ import re
 from pathlib import Path
 from urllib.parse import urlsplit
 
-from playlist_music.models import ImportIssue, ImportResult, TrackRequest
+from playlist_music.models import CsvPreview, ImportIssue, ImportResult, TrackRequest
 
 
 URL_PREFIX = re.compile(r"^[A-Za-z][A-Za-z0-9+.-]*://")
+CSV_FIELD_ALIASES = {
+    "title": {"title", "titulo", "título", "musica", "música", "song", "track", "faixa", "name"},
+    "artist": {"artist", "artista", "band", "banda", "performer", "singer"},
+    "url": {"url", "link", "source", "fonte"},
+}
 
 
 def parse_pasted_text(text: str) -> ImportResult:
@@ -36,6 +41,35 @@ def parse_txt_file(path: Path) -> ImportResult:
         return parse_pasted_text(path.read_text(encoding="utf-8-sig"))
     except (OSError, UnicodeError):
         return ImportResult([], [ImportIssue(None, "Could not read TXT file.")])
+
+
+def preview_csv_file(path: Path) -> CsvPreview:
+    """Read CSV headers and five rows without importing tracks."""
+    try:
+        with path.open(encoding="utf-8-sig", newline="") as source:
+            reader = csv.reader(source)
+            headers = tuple(value.strip() for value in next(reader, []))
+            if not headers:
+                return CsvPreview(error="CSV needs a header row.")
+            keys = tuple(_header_key(header) for header in headers)
+            if not all(keys):
+                return CsvPreview(error="CSV headers cannot be empty.")
+            if len(set(keys)) != len(keys):
+                return CsvPreview(error="CSV headers must be unique.")
+            rows = tuple(
+                tuple((row + [""] * len(headers))[: len(headers)])
+                for _, row in zip(range(5), reader, strict=False)
+            )
+    except (csv.Error, OSError, UnicodeError):
+        return CsvPreview(error="Could not read CSV file.")
+
+    return CsvPreview(
+        headers=headers,
+        rows=rows,
+        title_column=_suggest_column(headers, "title"),
+        artist_column=_suggest_column(headers, "artist"),
+        url_column=_suggest_column(headers, "url"),
+    )
 
 
 def parse_csv_file(path: Path) -> ImportResult:
@@ -157,3 +191,12 @@ def _append_request(
 
 def _csv_value(row: dict[str, str | None], headers: dict[str, str], name: str) -> str:
     return (row.get(headers.get(name, "")) or "").strip()
+
+
+def _header_key(value: str) -> str:
+    return "".join(char for char in value.casefold() if not char.isspace() and char not in "_-")
+
+
+def _suggest_column(headers: tuple[str, ...], field: str) -> str | None:
+    matches = [header for header in headers if _header_key(header) in CSV_FIELD_ALIASES[field]]
+    return matches[0] if len(matches) == 1 else None

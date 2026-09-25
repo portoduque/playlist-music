@@ -504,14 +504,14 @@
 
 **Acceptance criteria:**
 
-- [ ] Supports UTF-8/BOM, a five-row preview, PT/EN aliases, and deterministic suggestions.
-- [ ] Rejects unreadable files and empty or duplicate headers with a recoverable error.
-- [ ] Never accesses the network or infers music values from row contents.
+- [x] Supports UTF-8/BOM, a five-row preview, PT/EN aliases, and deterministic suggestions.
+- [x] Rejects unreadable files and empty or duplicate headers with a recoverable error.
+- [x] Never accesses the network or infers music values from row contents.
 
 **Verification:**
 
-- [ ] Focused parser tests cover aliases, Unicode, BOM, missing matches and duplicate headers.
-- [ ] `py -m pytest tests/test_tabular_import.py` and `py -m ruff check .`.
+- [x] Focused parser tests cover aliases, Unicode, BOM, missing matches and duplicate headers.
+- [x] `py -m pytest tests/test_tabular_import.py` and `py -m ruff check .`.
 
 **Dependencies:** None
 

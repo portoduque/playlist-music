@@ -33,6 +33,18 @@ class ImportResult:
 
 
 @dataclass(frozen=True, slots=True)
+class CsvPreview:
+    """A small, validated CSV sample for confirming column choices."""
+
+    headers: tuple[str, ...] = ()
+    rows: tuple[tuple[str, ...], ...] = ()
+    title_column: str | None = None
+    artist_column: str | None = None
+    url_column: str | None = None
+    error: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
 class DeduplicationResult:
     """Requests retained for processing and requests skipped as duplicates."""
 

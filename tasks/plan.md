@@ -421,14 +421,14 @@ C1 prévia e sugestões puras
 
 **Critérios de aceitação:**
 
-- [ ] CSV UTF-8/BOM retorna cabeçalhos distintos, até cinco linhas e sugestões determinísticas para aliases PT/EN.
-- [ ] Cabeçalho vazio, duplicado ou arquivo ilegível retorna erro legível e não produz prévia utilizável.
-- [ ] A sugestão não infere valores de músicas, não acessa rede e não escolhe duas colunas para o mesmo campo.
+- [x] CSV UTF-8/BOM retorna cabeçalhos distintos, até cinco linhas e sugestões determinísticas para aliases PT/EN.
+- [x] Cabeçalho vazio, duplicado ou arquivo ilegível retorna erro legível e não produz prévia utilizável.
+- [x] A sugestão não infere valores de músicas, não acessa rede e não escolhe duas colunas para o mesmo campo.
 
 **Testes:**
 
-- [ ] Casos para aliases, espaços/hífens/sublinhados, Unicode, nenhuma correspondência, duplicata e BOM.
-- [ ] `py -m pytest tests/test_tabular_import.py` e `py -m ruff check .` passam.
+- [x] Casos para aliases, espaços/hífens/sublinhados, Unicode, nenhuma correspondência, duplicata e BOM.
+- [x] `py -m pytest tests/test_tabular_import.py` e `py -m ruff check .` passam.
 
 **Arquivos prováveis:** `src/playlist_music/imports.py`, `src/playlist_music/models.py`, `tests/test_tabular_import.py`.
 
