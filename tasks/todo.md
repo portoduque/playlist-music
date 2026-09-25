@@ -540,7 +540,7 @@
 
 - [x] Tasks C1–C2 pass focused tests without network.
 - [x] `Musica`, `Banda`, `Link` maps to the same normalized requests as canonical headers.
-- [ ] Invalid mappings leave the existing import untouched.
+- [x] Invalid mappings leave the existing import untouched.
 
 ## Task C3: Add the CSV mapping confirmation dialog
 
@@ -548,15 +548,15 @@
 
 **Acceptance criteria:**
 
-- [ ] Known aliases are preselected and the preview has at most five rows.
-- [ ] Confirm applies only valid mappings and updates the existing summary.
-- [ ] Cancel, close, or validation error preserves the previous input state.
+- [x] Known aliases are preselected and the preview has at most five rows.
+- [x] Confirm applies only valid mappings and updates the existing summary.
+- [x] Cancel, close, or validation error preserves the previous input state.
 
 **Verification:**
 
-- [ ] State/controller tests cover confirm, cancel, and validation failure without a Tk window.
+- [x] State/controller tests cover confirm, cancel, and validation failure without a Tk window.
 - [ ] Manual smoke maps a nonstandard CSV and verifies cancellation preserves the current list.
-- [ ] `py -m pytest tests/test_ui_state.py tests/test_tabular_import.py` and `py -m ruff check .`.
+- [x] `py -m pytest tests/test_ui_state.py tests/test_tabular_import.py` and `py -m ruff check .`.
 
 **Dependencies:** Checkpoint C-A
 

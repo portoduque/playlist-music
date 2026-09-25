@@ -453,7 +453,7 @@ C1 prévia e sugestões puras
 
 - [x] C1 e C2 passam em testes focados sem rede.
 - [x] Um CSV com `Musica`, `Banda` e `Link` vira os mesmos `TrackRequest` de um CSV canônico.
-- [ ] Nenhum mapeamento inválido substitui uma lista existente.
+- [x] Nenhum mapeamento inválido substitui uma lista existente.
 
 ### Task C3 — Exibir e confirmar o mapeamento na interface
 
@@ -461,15 +461,15 @@ C1 prévia e sugestões puras
 
 **Critérios de aceitação:**
 
-- [ ] Ao escolher CSV, a janela mostra até cinco linhas e pré-seleciona aliases conhecidos.
-- [ ] Confirmar habilita apenas um mapeamento válido; o resumo mostra o resultado importado.
-- [ ] Cancelar, fechar a janela ou encontrar erro mantém `InputState` intacto e mostra uma mensagem recuperável.
+- [x] Ao escolher CSV, a janela mostra até cinco linhas e pré-seleciona aliases conhecidos.
+- [x] Confirmar habilita apenas um mapeamento válido; o resumo mostra o resultado importado.
+- [x] Cancelar, fechar a janela ou encontrar erro mantém `InputState` intacto e mostra uma mensagem recuperável.
 
 **Testes:**
 
-- [ ] Testes de estado/controlador para confirmar, cancelar e erro sem depender de uma janela Tk real.
+- [x] Testes de estado/controlador para confirmar, cancelar e erro sem depender de uma janela Tk real.
 - [ ] Smoke manual: importar um CSV de cabeçalho não convencional, corrigir um seletor e confirmar a contagem correta.
-- [ ] `py -m pytest tests/test_ui_state.py tests/test_tabular_import.py` e `py -m ruff check .` passam.
+- [x] `py -m pytest tests/test_ui_state.py tests/test_tabular_import.py` e `py -m ruff check .` passam.
 
 **Arquivos prováveis:** `src/playlist_music/app.py`, `src/playlist_music/ui_state.py`, `tests/test_ui_state.py`, `tests/test_tabular_import.py`.
 

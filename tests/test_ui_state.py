@@ -4,6 +4,7 @@ from pathlib import Path
 import tkinter as tk
 
 from playlist_music.app import PlaylistMusicApp
+from playlist_music.models import CsvColumnMapping
 from playlist_music.ui_state import InputState
 
 
@@ -46,6 +47,29 @@ def test_rejects_an_unknown_quality() -> None:
         assert str(error) == "Unsupported quality: lossless"
     else:
         raise AssertionError("Unknown quality must be rejected.")
+
+
+def test_applies_confirmed_csv_mapping_without_replacing_state_on_mapping_error(tmp_path) -> None:
+    source = tmp_path / "songs.csv"
+    source.write_text("Music,Performer\nSong One,Artist One\n", encoding="utf-8")
+    state = InputState()
+    state.set_pasted_text("Existing song")
+
+    error = state.apply_csv_mapping(
+        source,
+        CsvColumnMapping(title_column="Music", artist_column="Performer"),
+    )
+
+    assert error is None
+    assert [(item.query, item.title, item.artist) for item in state.imported.requests] == [
+        ("Artist One - Song One", "Song One", "Artist One")
+    ]
+    confirmed = state.imported
+
+    error = state.apply_csv_mapping(source, CsvColumnMapping())
+
+    assert error == "CSV mapping needs title or url."
+    assert state.imported == confirmed
 
 
 def test_builds_the_native_input_screen() -> None:

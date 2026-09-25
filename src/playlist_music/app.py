@@ -5,12 +5,14 @@ import tkinter as tk
 from pathlib import Path
 from tkinter import filedialog, ttk
 
+from playlist_music.csv_mapping_dialog import show_csv_mapping_dialog
 from playlist_music.imports import (
-    parse_csv_file,
     parse_json_file,
     parse_m3u_file,
     parse_txt_file,
+    preview_csv_file,
 )
+from playlist_music.models import CsvColumnMapping
 from playlist_music.service import ServiceResult, create_playlist
 from playlist_music.ui_state import InputState, completion_actions, safe_output_path
 from playlist_music.worker import PlaylistWorker
@@ -107,9 +109,15 @@ class PlaylistMusicApp:
         if not filename:
             return
         path = Path(filename)
+        if path.suffix.lower() == ".csv":
+            preview = preview_csv_file(path)
+            if preview.error:
+                self.status.set(preview.error)
+                return
+            show_csv_mapping_dialog(self.root, preview, lambda mapping: self._apply_csv_mapping(path, mapping))
+            return
         parser = {
             ".txt": parse_txt_file,
-            ".csv": parse_csv_file,
             ".m3u": parse_m3u_file,
             ".m3u8": parse_m3u_file,
             ".json": parse_json_file,
@@ -120,6 +128,14 @@ class PlaylistMusicApp:
         self.state.set_imported(parser(path))
         self.summary.set(self.state.import_summary)
         self.status.set(f"Imported {path.name}.")
+
+    def _apply_csv_mapping(self, path: Path, mapping: CsvColumnMapping) -> str | None:
+        error = self.state.apply_csv_mapping(path, mapping)
+        if error:
+            return error
+        self.summary.set(self.state.import_summary)
+        self.status.set(f"Imported {path.name}.")
+        return None
 
     def _choose_folder(self) -> None:
         folder = filedialog.askdirectory()

@@ -5,8 +5,8 @@ from pathlib import Path
 
 from playlist_music.artifacts import ArtifactPaths
 from playlist_music.downloader import AUDIO_QUALITY
-from playlist_music.imports import parse_pasted_text
-from playlist_music.models import ImportResult, QueueResult
+from playlist_music.imports import parse_csv_file, parse_pasted_text
+from playlist_music.models import CsvColumnMapping, ImportResult, QueueResult
 from playlist_music.service import ServiceResult
 
 
@@ -32,6 +32,14 @@ class InputState:
 
     def set_imported(self, imported: ImportResult) -> None:
         self.imported = imported
+
+    def apply_csv_mapping(self, path: Path, mapping: CsvColumnMapping) -> str | None:
+        """Apply a confirmed map only when its columns are valid for the CSV."""
+        imported = parse_csv_file(path, mapping)
+        if imported.issues and imported.issues[0].line_number == 1:
+            return imported.issues[0].message
+        self.imported = imported
+        return None
 
     def set_output_folder(self, folder: Path) -> None:
         self.output_folder = folder
