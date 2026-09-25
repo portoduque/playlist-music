@@ -468,7 +468,7 @@ C1 prévia e sugestões puras
 **Testes:**
 
 - [x] Testes de estado/controlador para confirmar, cancelar e erro sem depender de uma janela Tk real.
-- [ ] Smoke manual: importar um CSV de cabeçalho não convencional, corrigir um seletor e confirmar a contagem correta.
+- [x] Smoke manual: importar um CSV de cabeçalho não convencional, corrigir um seletor e confirmar a contagem correta (confirmado pelo usuário em 25/09/2026).
 - [x] `py -m pytest tests/test_ui_state.py tests/test_tabular_import.py` e `py -m ruff check .` passam.
 
 **Arquivos prováveis:** `src/playlist_music/app.py`, `src/playlist_music/ui_state.py`, `tests/test_ui_state.py`, `tests/test_tabular_import.py`.
@@ -481,21 +481,181 @@ C1 prévia e sugestões puras
 
 - [x] README explica que CSV sempre abre uma confirmação, quais campos o sistema entende e como ignorar colunas extras.
 - [x] README não promete reconhecimento de qualquer cabeçalho nem suporte a Excel/perfis salvos.
-- [ ] O plano e a lista de tarefas registram as provas automatizadas e manuais realizadas.
+- [x] O plano e a lista de tarefas registram as provas automatizadas e manuais realizadas.
 
 **Testes e verificação:**
 
 - [x] `py -m pytest` e `py -m ruff check .` passam (79 testes em 25/09/2026).
-- [ ] Smoke manual confirma importação, correção de vínculo, cancelamento e preservação da lista anterior.
+- [x] Smoke manual confirma importação, correção de vínculo, cancelamento e preservação da lista anterior (confirmado pelo usuário em 25/09/2026).
 - [x] Revisão final confirma que nenhum CSV pessoal, arquivo de áudio ou segredo entra no repositório (25/09/2026).
 
 **Arquivos prováveis:** `README.md`, `tasks/plan.md`, `tasks/todo.md`.
 
 ### Checkpoint C-B — Mapeamento pronto para uso
 
-- [ ] C1–C4 concluídas com testes focados.
+- [x] C1–C4 concluídas com testes focados.
 - [x] Suíte e Ruff passam (79 testes em 25/09/2026).
-- [ ] O fluxo manual confirma sugestão, correção, confirmação e cancelamento.
+- [x] O fluxo manual confirma sugestão, correção, confirmação e cancelamento (confirmado pelo usuário em 25/09/2026).
+
+---
+
+## Plano: opções avançadas de download simples e intuitivas
+
+### Objetivo
+
+Dar controle sobre os únicos comportamentos que alteram o resultado para o usuário: qualidade, tags, capa e duplicatas. A tela principal continuará com um caminho rápido e seguro; configurações técnicas do `yt-dlp`, FFmpeg, cookies, proxy, timeout e formatos alternativos ficam fora do produto.
+
+### Contrato de interface
+
+| Área | Controle | Padrão | Efeito real |
+| --- | --- | --- | --- |
+| Tela principal | **Audio quality** com texto auxiliar | Recommended | Usa a qualidade VBR atual `0`; Balanced usa `5` e Compact usa `8`. |
+| More options | **Add title and artist tags** | Ativado | Preserva a escrita local de título, artista e número da faixa. |
+| More options | **Embed cover art when available** | Ativado | Pede a incorporação de miniatura da fonte no MP3. |
+| More options | **Skip duplicate songs** | Ativado | Mantém somente a primeira solicitação normalizada. |
+| More options | Nota de saída fixa | — | MP3, playlists `.m3u`/`.m3u8` e `resultado.txt` sempre são criados. |
+
+As opções usam caixas de seleção nativas, com rótulo e ajuda em texto; não dependem de cor, não gravam preferências fora da execução atual e permanecem acessíveis por teclado. Desativar tags não desativa a capa, e desativar capa não desativa tags.
+
+### Dependências e ordem
+
+```text
+D1 estado validado e configuração padrão
+ ├─ D2 propagação de tags e capa ao downloader/serviço
+ └─ D3 propagação de duplicatas à fila
+      └─ D4 painel Tkinter e descrições de qualidade
+           └─ D5 documentação, testes completos e smoke manual
+```
+
+### Task D1 — Modelar as preferências de execução
+
+**Descrição:** Adicionar ao estado os três booleanos com padrões seguros e validação da qualidade já existente, sem alterar o resultado atual.
+
+**Critérios de aceitação:**
+
+- [ ] Uma nova execução, sem interação, preserva qualidade Recommended, tags, capa e remoção de duplicatas.
+- [ ] O estado aceita alteração explícita de cada preferência e rejeita qualidade desconhecida.
+- [ ] Nenhuma preferência é persistida em arquivo, banco ou rede.
+
+**Testes:**
+
+- [ ] Testes de `InputState` verificam padrões e alterações independentes.
+- [ ] `py -m pytest tests/test_ui_state.py` e `py -m ruff check .` passam.
+
+**Arquivos prováveis:** `src/playlist_music/ui_state.py`, `tests/test_ui_state.py`.
+
+**Escopo estimado:** Pequeno (2 arquivos).
+
+### Task D2 — Tornar tags e capa configuráveis
+
+**Descrição:** Propagar as preferências de tags e capa pelo serviço e pelo comando do downloader, preservando o comportamento atual quando ambas estiverem ativas.
+
+**Critérios de aceitação:**
+
+- [ ] Tags ativas mantêm a escrita local de título, artista e número; desativadas não chamam o escritor de metadados.
+- [ ] Capa ativa inclui somente a flag nativa de miniatura; desativada não a envia ao downloader.
+- [ ] Um MP3 concluído continua válido se a etapa opcional de tags ou capa falhar.
+
+**Testes:**
+
+- [ ] Testes de comando verificam flags presentes e ausentes.
+- [ ] Testes de serviço verificam que o escritor de tags só executa quando ativado.
+- [ ] `py -m pytest tests/test_commands.py tests/test_service.py tests/test_single_download.py` e Ruff passam.
+
+**Dependência:** D1.
+
+**Arquivos prováveis:** `src/playlist_music/downloader.py`, `src/playlist_music/service.py`, `tests/test_commands.py`, `tests/test_service.py`, `tests/test_single_download.py`.
+
+**Escopo estimado:** Médio (5 arquivos).
+
+### Task D3 — Tornar duplicatas uma escolha explícita
+
+**Descrição:** Permitir manter repetidas quando o usuário desmarca a proteção, mantendo o comportamento atual de pular duplicadas por padrão.
+
+**Critérios de aceitação:**
+
+- [ ] Com a proteção ativa, a primeira solicitação é processada e as outras aparecem como duplicadas.
+- [ ] Com a proteção desativada, todas as solicitações são processadas na ordem original.
+- [ ] A escolha não altera validação de entrada nem nomes seguros de arquivo.
+
+**Testes:**
+
+- [ ] Testes de fila cobrem os dois modos sem rede.
+- [ ] `py -m pytest tests/test_queue.py tests/test_service.py` e Ruff passam.
+
+**Dependência:** D1.
+
+**Arquivos prováveis:** `src/playlist_music/queue.py`, `src/playlist_music/service.py`, `tests/test_queue.py`, `tests/test_service.py`.
+
+**Escopo estimado:** Pequeno (4 arquivos).
+
+### Checkpoint D-A — Preferências funcionais
+
+- [ ] D1–D3 preservam os padrões atuais quando o usuário não altera nada.
+- [ ] Testes focados passam sem rede e sem arquivos pessoais.
+
+### Task D4 — Construir o painel More options
+
+**Descrição:** Substituir o texto provisório por controles Tkinter agrupados, com explicações curtas para perfis de qualidade e opções avançadas.
+
+**Critérios de aceitação:**
+
+- [ ] A qualidade mostra descrição compreensível de espaço versus qualidade, sem expor os códigos `0`, `5` e `8`.
+- [ ] More options abre e fecha sem perder valores escolhidos, e cada checkbox atualiza `InputState`.
+- [ ] Todos os controles têm rótulo visível, ordem de Tab lógica e texto que não depende apenas de cor.
+
+**Testes:**
+
+- [ ] Testes de tela/estado cobrem abertura, alteração e envio das preferências para `create_playlist`.
+- [ ] Smoke manual em Windows: Tab pelos controles, alternar cada opção, criar uma playlist curta e confirmar o efeito em `resultado.txt`/MP3.
+- [ ] `py -m pytest tests/test_ui_state.py tests/test_ui_completion.py` e Ruff passam.
+
+**Dependências:** Checkpoint D-A.
+
+**Arquivos prováveis:** `src/playlist_music/app.py`, `src/playlist_music/ui_state.py`, `tests/test_ui_state.py`, `tests/test_ui_completion.py`.
+
+**Escopo estimado:** Médio (4 arquivos).
+
+### Task D5 — Documentar e validar o fluxo completo
+
+**Descrição:** Atualizar README com os controles efetivamente entregues e validar a execução padrão e cada alteração isolada.
+
+**Critérios de aceitação:**
+
+- [ ] README descreve os três perfis, os três controles avançados e os padrões seguros sem prometer configurações inexistentes.
+- [ ] O relatório continua explicando falhas e as playlists continuam portáteis em todos os modos aplicáveis.
+- [ ] Nenhum comando, credencial, cookie, proxy ou arquivo pessoal aparece na interface, documentação ou Git.
+
+**Testes e verificação:**
+
+- [ ] `py -m pytest` e `py -m ruff check .` passam.
+- [ ] Smoke manual cobre Recommended padrão, Compact, tags desligadas, capa desligada e duplicatas permitidas.
+- [ ] Revisão de UI confirma legibilidade, teclado e ausência de opções técnicas supérfluas.
+
+**Dependência:** D4.
+
+**Arquivos prováveis:** `README.md`, `tests/test_*.py`, `tasks/plan.md`, `tasks/todo.md`.
+
+**Escopo estimado:** Pequeno (até 5 arquivos).
+
+### Checkpoint D-B — Opções prontas para uso
+
+- [ ] D1–D5 concluídas e commitadas em fatias atômicas.
+- [ ] Suíte completa e Ruff passam.
+- [ ] Fluxo padrão permanece simples; todas as opções adicionais funcionam isoladamente.
+
+### Riscos e limites
+
+| Risco | Tratamento |
+| --- | --- |
+| Opções demais confundem | Três checkboxes, padrões ligados e explicações curtas; saída fixa fica somente informativa. |
+| Capa indisponível | Continua como aviso opcional; não torna o MP3 uma falha. |
+| Duplicatas permitidas sobrescrevem arquivos | O alocador de nomes existente cria nomes distintos. |
+| Perfil de qualidade mal interpretado | Explicar a troca entre tamanho e qualidade sem expor valores de codificação. |
+
+### Fora do escopo
+
+- Outros formatos de áudio, bitrate numérico, codec manual, timeout/retry manual, proxies, cookies, login, playlists remotas, perfis salvos e configurações persistentes.
 
 ## Matriz de testes
 

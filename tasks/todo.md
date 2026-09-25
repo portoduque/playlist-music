@@ -555,7 +555,7 @@
 **Verification:**
 
 - [x] State/controller tests cover confirm, cancel, and validation failure without a Tk window.
-- [ ] Manual smoke maps a nonstandard CSV and verifies cancellation preserves the current list.
+- [x] Manual smoke maps a nonstandard CSV and verifies cancellation preserves the current list (confirmed by the user on 2026-09-25).
 - [x] `py -m pytest tests/test_ui_state.py tests/test_tabular_import.py` and `py -m ruff check .`.
 
 **Dependencies:** Checkpoint C-A
@@ -570,12 +570,12 @@
 
 - [x] README explains confirmation, supported system fields, and ignored columns accurately.
 - [x] README does not promise universal header recognition, Excel support, or saved profiles.
-- [ ] Plan records automated and manual verification evidence.
+- [x] Plan records automated and manual verification evidence.
 
 **Verification:**
 
 - [x] `py -m pytest` and `py -m ruff check .` (79 tests on 2026-09-25).
-- [ ] Manual smoke covers suggestion, correction, confirmation, and cancellation.
+- [x] Manual smoke covers suggestion, correction, confirmation, and cancellation (confirmed by the user on 2026-09-25).
 - [x] No personal CSV, audio file, or secret is committed (2026-09-25).
 
 **Dependencies:** Task C3
@@ -584,6 +584,113 @@
 
 ## Checkpoint C-B: CSV mapping complete
 
-- [ ] Tasks C1–C4 complete with focused checks.
+- [x] Tasks C1–C4 complete with focused checks.
 - [x] Full suite and Ruff pass (79 tests on 2026-09-25).
-- [ ] Manual flow confirms suggestion, correction, confirmation, and cancellation.
+- [x] Manual flow confirms suggestion, correction, confirmation, and cancellation (confirmed by the user on 2026-09-25).
+
+---
+
+## Advanced download options: atomic task list
+
+### Task D1: Store safe run preferences
+
+**Description:** Add in-memory defaults for metadata tags, cover art, and duplicate skipping without changing the default run.
+
+**Acceptance criteria:**
+
+- [ ] Default state keeps Recommended quality, tags, cover art, and duplicate skipping enabled.
+- [ ] Each preference can change independently; unsupported quality remains rejected.
+- [ ] Preferences are not persisted outside the current run.
+
+**Verification:**
+
+- [ ] `py -m pytest tests/test_ui_state.py` and `py -m ruff check .`.
+
+**Dependencies:** None
+
+**Estimated scope:** Small (2 files)
+
+### Task D2: Apply metadata and cover settings
+
+**Description:** Pass the tag and cover choices through the service and downloader.
+
+**Acceptance criteria:**
+
+- [ ] Disabled tags skip the local metadata writer.
+- [ ] Disabled cover art omits only the thumbnail embedding flag.
+- [ ] Existing defaults retain the current command and completed MP3 behavior.
+
+**Verification:**
+
+- [ ] `py -m pytest tests/test_commands.py tests/test_service.py tests/test_single_download.py` and `py -m ruff check .`.
+
+**Dependencies:** D1
+
+**Estimated scope:** Medium (5 files)
+
+### Task D3: Apply duplicate preference
+
+**Description:** Preserve skip-duplicates by default while allowing each repeated request to run when disabled.
+
+**Acceptance criteria:**
+
+- [ ] Default mode skips repeated normalized requests.
+- [ ] Disabled mode processes every request in input order.
+- [ ] File allocation remains safe in both modes.
+
+**Verification:**
+
+- [ ] `py -m pytest tests/test_queue.py tests/test_service.py` and `py -m ruff check .`.
+
+**Dependencies:** D1
+
+**Estimated scope:** Small (4 files)
+
+### Checkpoint D-A: Functional preferences
+
+- [ ] D1–D3 preserve existing defaults without network access.
+- [ ] Focused tests and Ruff pass.
+
+### Task D4: Build the intuitive More options panel
+
+**Description:** Replace the placeholder with native, keyboard-accessible controls and plain-language quality guidance.
+
+**Acceptance criteria:**
+
+- [ ] Quality explains its storage trade-off without encoder codes.
+- [ ] Options open/close without losing selections and feed the next run.
+- [ ] Controls have visible labels, logical Tab order, and text-based state.
+
+**Verification:**
+
+- [ ] `py -m pytest tests/test_ui_state.py tests/test_ui_completion.py` and `py -m ruff check .`.
+- [ ] Windows smoke test checks keyboard use and each option's effect.
+
+**Dependencies:** Checkpoint D-A
+
+**Estimated scope:** Medium (4 files)
+
+### Task D5: Document and verify all settings
+
+**Description:** Keep README accurate and prove default and changed settings work.
+
+**Acceptance criteria:**
+
+- [ ] README documents only the delivered profiles and controls.
+- [ ] Portable playlists and failure reporting remain correct.
+- [ ] No credentials, cookies, proxies, or personal test files are committed.
+
+**Verification:**
+
+- [ ] `py -m pytest` and `py -m ruff check .`.
+- [ ] Manual checks cover default, Compact, tags off, cover off, and duplicates allowed.
+
+**Dependencies:** D4
+
+**Estimated scope:** Small (up to 5 files)
+
+### Checkpoint D-B: Advanced options complete
+
+- [ ] D1–D5 are committed in atomic slices.
+- [ ] Full suite and Ruff pass.
+- [ ] The default flow remains simple and every optional control works independently.
