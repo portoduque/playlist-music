@@ -368,14 +368,14 @@
 
 **Acceptance criteria:**
 
-- [ ] CSV `title`, `artist`, and `url` reach the service independently.
-- [ ] Query-only inputs retain current behavior.
-- [ ] TXT, M3U, JSON, CSV ordering and invalid-row reporting do not regress.
+- [x] CSV `title`, `artist`, and `url` reach the service independently.
+- [x] Query-only inputs retain current behavior.
+- [x] TXT, M3U, JSON, CSV ordering and invalid-row reporting do not regress.
 
 **Verification:**
 
-- [ ] Focused parser tests for CSV, JSON and fallback query behavior.
-- [ ] `py -m pytest` and `py -m ruff check .`.
+- [x] Focused parser tests for CSV, JSON and fallback query behavior.
+- [x] `py -m pytest` and `py -m ruff check .`.
 
 **Dependencies:** None
 

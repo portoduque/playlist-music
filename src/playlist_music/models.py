@@ -12,6 +12,8 @@ class TrackRequest:
     line_number: int
     query: str
     url: str | None = None
+    title: str | None = None
+    artist: str | None = None
 
 
 @dataclass(frozen=True, slots=True)

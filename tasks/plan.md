@@ -192,14 +192,14 @@ Till I Collapse,Eminem,https://www.youtube.com/watch?v=...
 
 **Critérios de aceitação:**
 
-- [ ] Uma linha CSV `Faint,Linkin Park,<url>` chega ao serviço com título, artista e URL separados.
-- [ ] Uma consulta pura continua funcionando e não ganha artista/título inventados.
-- [ ] Arquivos TXT, M3U, JSON e CSV atuais mantêm o comportamento anterior.
+- [x] Uma linha CSV `Faint,Linkin Park,<url>` chega ao serviço com título, artista e URL separados.
+- [x] Uma consulta pura continua funcionando e não ganha artista/título inventados.
+- [x] Arquivos TXT, M3U, JSON e CSV atuais mantêm o comportamento anterior.
 
 **Testes:**
 
-- [ ] Casos unitários para CSV com URL, CSV sem URL, JSON com/sem campos e Unicode.
-- [ ] Regressão dos testes de importação completos, sem rede.
+- [x] Casos unitários para CSV com URL, CSV sem URL, JSON com/sem campos e Unicode.
+- [x] Regressão dos testes de importação completos, sem rede.
 
 **Arquivos prováveis:** `models.py`, `imports.py`, testes de importação.
 

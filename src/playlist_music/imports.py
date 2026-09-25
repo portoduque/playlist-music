@@ -60,7 +60,15 @@ def parse_csv_file(path: Path) -> ImportResult:
                     issues.append(ImportIssue(line_number, "CSV row needs title or url."))
                     continue
                 query = f"{artist} - {title}" if artist and title else title or url
-                _append_request(url or query, line_number, query, requests, issues)
+                _append_request(
+                    url or query,
+                    line_number,
+                    query,
+                    requests,
+                    issues,
+                    title=title or None,
+                    artist=artist or None,
+                )
     except (csv.Error, OSError, UnicodeError):
         return ImportResult([], [ImportIssue(None, "Could not read CSV file.")])
 
@@ -111,7 +119,15 @@ def parse_json_file(path: Path) -> ImportResult:
             issues.append(ImportIssue(item_number, "JSON item needs title or url."))
             continue
         query = f"{artist} - {title}" if artist and title else title or url
-        _append_request(url or query, item_number, query, requests, issues)
+        _append_request(
+            url or query,
+            item_number,
+            query,
+            requests,
+            issues,
+            title=title or None,
+            artist=artist or None,
+        )
 
     return ImportResult(requests, issues)
 
@@ -122,6 +138,9 @@ def _append_request(
     query: str,
     requests: list[TrackRequest],
     issues: list[ImportIssue],
+    *,
+    title: str | None = None,
+    artist: str | None = None,
 ) -> None:
     if URL_PREFIX.match(value):
         parsed = urlsplit(value)
@@ -131,9 +150,9 @@ def _append_request(
         if not parsed.netloc:
             issues.append(ImportIssue(line_number, "URL must include a host."))
             return
-        requests.append(TrackRequest(line_number, query, value))
+        requests.append(TrackRequest(line_number, query, value, title, artist))
         return
-    requests.append(TrackRequest(line_number, query))
+    requests.append(TrackRequest(line_number, query, title=title, artist=artist))
 
 
 def _csv_value(row: dict[str, str | None], headers: dict[str, str], name: str) -> str:

@@ -29,9 +29,12 @@ def test_parses_json_strings_and_track_objects(tmp_path) -> None:
 
     result = parse_json_file(source)
 
-    assert [(item.line_number, item.query, item.url) for item in result.requests] == [
-        (1, "Song One", None),
-        (2, "Artist Two - Song Two", "https://example.com/two"),
+    assert [
+        (item.line_number, item.query, item.url, item.title, item.artist)
+        for item in result.requests
+    ] == [
+        (1, "Song One", None, None, None),
+        (2, "Artist Two - Song Two", "https://example.com/two", "Song Two", "Artist Two"),
     ]
     assert result.issues == []
 

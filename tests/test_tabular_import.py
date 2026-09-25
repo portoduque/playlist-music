@@ -25,8 +25,11 @@ def test_parses_reordered_csv_headers_and_quoted_values(tmp_path) -> None:
 
     result = parse_csv_file(source)
 
-    assert [(item.line_number, item.query, item.url) for item in result.requests] == [
-        (2, "Artist One - Song, One", "https://example.com/a")
+    assert [
+        (item.line_number, item.query, item.url, item.title, item.artist)
+        for item in result.requests
+    ] == [
+        (2, "Artist One - Song, One", "https://example.com/a", "Song, One", "Artist One")
     ]
     assert result.issues == []
 
@@ -40,8 +43,11 @@ def test_reports_invalid_csv_rows_without_discarding_valid_rows(tmp_path) -> Non
 
     result = parse_csv_file(source)
 
-    assert [(item.line_number, item.query, item.url) for item in result.requests] == [
-        (2, "Song One", None)
+    assert [
+        (item.line_number, item.query, item.url, item.title, item.artist)
+        for item in result.requests
+    ] == [
+        (2, "Song One", None, "Song One", None)
     ]
     assert [(issue.line_number, issue.message) for issue in result.issues] == [
         (3, "URL must include a host.")
