@@ -63,6 +63,36 @@ def test_reports_failures_and_duplicates_without_adding_them_to_playlists(tmp_pa
     assert "key=secret" not in report
 
 
+def test_reports_metadata_warnings_without_excluding_successful_audio(tmp_path) -> None:
+    root = tmp_path / "playlist"
+    root.mkdir()
+    audio = root / "001 - Song.mp3"
+    audio.write_bytes(b"audio")
+    request = TrackRequest(1, "Song")
+    queue = QueueResult(
+        [
+            QueueItemResult(
+                request,
+                "succeeded",
+                AcquisitionResult(
+                    request,
+                    True,
+                    audio,
+                    "https://example.com/song",
+                    None,
+                    ("Could not write audio tags.",),
+                ),
+            )
+        ]
+    )
+
+    artifacts = write_artifacts(root, "playlist", queue)
+
+    assert artifacts.m3u8.read_text(encoding="utf-8") == "#EXTM3U\n001 - Song.mp3\n"
+    assert "warnings" in artifacts.report.read_text(encoding="utf-8").splitlines()[0]
+    assert "Could not write audio tags." in artifacts.report.read_text(encoding="utf-8")
+
+
 def test_ignores_a_success_path_outside_the_playlist_folder(tmp_path) -> None:
     root = tmp_path / "playlist"
     root.mkdir()

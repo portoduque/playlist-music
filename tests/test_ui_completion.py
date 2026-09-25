@@ -2,7 +2,7 @@
 
 from playlist_music.artifacts import ArtifactPaths
 from playlist_music.app import PlaylistMusicApp
-from playlist_music.models import QueueItemResult, QueueResult, TrackRequest
+from playlist_music.models import AcquisitionResult, QueueItemResult, QueueResult, TrackRequest
 from playlist_music.service import ServiceResult
 from playlist_music.ui_state import InputState, completion_actions
 
@@ -85,6 +85,28 @@ def test_summarizes_zero_successes() -> None:
     actions = completion_actions(result, None)
 
     assert actions.message == "Finished: no tracks downloaded; 1 failed, 1 duplicate skipped."
+
+
+def test_summarizes_metadata_warnings_without_counting_a_failure() -> None:
+    request = TrackRequest(1, "Song")
+    result = ServiceResult(
+        True,
+        None,
+        QueueResult(
+            [
+                QueueItemResult(
+                    request,
+                    "succeeded",
+                    AcquisitionResult(request, True, None, None, None, ("Tag warning",)),
+                )
+            ]
+        ),
+        None,
+    )
+
+    actions = completion_actions(result, None)
+
+    assert actions.message == "Finished: 1 downloaded, 0 failed, 0 duplicates skipped; 1 metadata warning."
 
 
 def test_only_offers_paths_confined_to_the_completed_output(tmp_path) -> None:

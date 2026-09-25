@@ -11,6 +11,7 @@ from playlist_music.models import (
     AcquisitionResult,
     ImportResult,
     QueueProgress,
+    QueueItemResult,
     QueueResult,
     TrackRequest,
 )
@@ -63,9 +64,10 @@ def create_playlist(
                 quality=quality,
             )
     queue = process_queue(imported.requests, acquire, on_progress)
+    tagged_items: list[QueueItemResult] = []
     for item in queue.items:
         if item.status == "succeeded" and item.acquisition and item.acquisition.output_path:
-            write_tags(
+            metadata_result = write_tags(
                 item.acquisition.output_path,
                 item.request.title,
                 item.request.artist,
@@ -73,5 +75,17 @@ def create_playlist(
                 fallback_title=item.request.query,
                 track_number=str(item.request.line_number),
             )
+            acquisition = AcquisitionResult(
+                item.acquisition.request,
+                item.acquisition.succeeded,
+                item.acquisition.output_path,
+                item.acquisition.source,
+                item.acquisition.error,
+                item.acquisition.warnings + tuple(metadata_result.issues),
+            )
+            tagged_items.append(QueueItemResult(item.request, item.status, acquisition))
+        else:
+            tagged_items.append(item)
+    queue = QueueResult(tagged_items)
     artifacts = write_artifacts(output_folder, playlist_name, queue)
     return ServiceResult(True, None, queue, artifacts, output_folder)

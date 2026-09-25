@@ -10,7 +10,7 @@ O comando abaixo abre a tela local inicial:
 py -m playlist_music
 ```
 
-Ela permite informar o nome da playlist, colar consultas ou URLs, importar uma lista, escolher a pasta e a qualidade. Ao criar, o processamento local ocorre em segundo plano e a tela recebe atualizações de progresso sem ser manipulada pela thread de trabalho. No fim, ela informa quantas faixas foram concluídas, falharam ou foram ignoradas como duplicadas e oferece abrir a pasta ou a playlist gerada quando os caminhos continuam válidos.
+Ela permite informar o nome da playlist, colar consultas ou URLs, importar uma lista, escolher a pasta e a qualidade. Ao criar, o processamento local ocorre em segundo plano e a tela recebe atualizações de progresso sem ser manipulada pela thread de trabalho. No fim, ela informa quantas faixas foram concluídas, falharam, tiveram apenas avisos de metadados ou foram ignoradas como duplicadas e oferece abrir a pasta ou a playlist gerada quando os caminhos continuam válidos.
 
 O escopo planejado, a ordem de implementação e os critérios de aceite estão em [SPEC.md](SPEC.md), [tasks/plan.md](tasks/plan.md) e [tasks/todo.md](tasks/todo.md).
 
@@ -50,7 +50,7 @@ O download pede ao `yt-dlp` para incorporar os metadados e a capa que a fonte di
 
 ### Playlists e relatório internos
 
-O módulo interno gera `.m3u8` em UTF-8 e `.m3u` em UTF-8 com BOM, ambos com caminhos relativos para que a pasta possa ser movida inteira. Somente MP3s finais e confinados à pasta entram nas playlists. O `resultado.txt` mantém a ordem da fila e registra consulta, estado, origem, arquivo e erro; parâmetros e fragmentos de URLs são removidos antes do registro. O serviço headless já conecta importação normalizada, preflight, fila, tags e artefatos à tela por uma thread de trabalho segura.
+O módulo interno gera `.m3u8` em UTF-8 e `.m3u` em UTF-8 com BOM, ambos com caminhos relativos para que a pasta possa ser movida inteira. Somente MP3s finais e confinados à pasta entram nas playlists. O `resultado.txt` mantém a ordem da fila e registra consulta, estado, origem, arquivo, erro e avisos de metadados; parâmetros e fragmentos de URLs são removidos antes do registro. Um aviso não exclui uma faixa já concluída. O serviço headless já conecta importação normalizada, preflight, fila, tags e artefatos à tela por uma thread de trabalho segura.
 
 ## Visão do MVP
 

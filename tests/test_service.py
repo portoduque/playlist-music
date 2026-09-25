@@ -117,3 +117,28 @@ def test_keeps_processing_after_one_acquisition_failure(tmp_path) -> None:
     assert result.started is True
     assert [item.status for item in result.queue.items] == ["failed", "succeeded"]
     assert result.artifacts.m3u8.read_text(encoding="utf-8") == "#EXTM3U\n002 - Working.mp3\n"
+
+
+def test_records_tag_issues_as_warnings_without_failing_audio(tmp_path) -> None:
+    root = tmp_path / "library"
+    playlist_folder = root / "playlist"
+    request = TrackRequest(1, "Song")
+
+    def acquire(item: TrackRequest) -> AcquisitionResult:
+        output = playlist_folder / "001 - Song.mp3"
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_bytes(b"audio")
+        return AcquisitionResult(item, True, output, "https://example.com/song", None)
+
+    result = create_playlist(
+        "playlist",
+        root,
+        ImportResult([request], []),
+        preflight=lambda: PreflightResult(True, Path("ffmpeg"), None),
+        acquire=acquire,
+        write_tags=lambda *_args, **_kwargs: MetadataResult(["Could not write audio tags."]),
+    )
+
+    acquisition = result.queue.items[0].acquisition
+    assert result.queue.items[0].status == "succeeded"
+    assert acquisition and acquisition.warnings == ("Could not write audio tags.",)

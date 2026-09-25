@@ -456,14 +456,14 @@
 
 **Acceptance criteria:**
 
-- [ ] Report distinguishes downloaded, failed, and metadata-warning tracks.
-- [ ] Opening the folder targets the validated subfolder.
-- [ ] UI count treats a metadata warning as a created song, not a failed download.
+- [x] Report distinguishes downloaded, failed, and metadata-warning tracks.
+- [x] Opening the folder targets the validated subfolder.
+- [x] UI count treats a metadata warning as a created song, not a failed download.
 
 **Verification:**
 
-- [ ] Service, artifact, and UI-completion tests with fake runner/writer.
-- [ ] `py -m pytest` and `py -m ruff check .`.
+- [x] Service, artifact, and UI-completion tests with fake runner/writer.
+- [x] `py -m pytest` and `py -m ruff check .`.
 
 **Dependencies:** Tasks M2 and M4
 

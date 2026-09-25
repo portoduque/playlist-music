@@ -87,10 +87,15 @@ def _completion_message(result: ServiceResult) -> str:
     succeeded = sum(item.status == "succeeded" for item in queue.items)
     failed = sum(item.status == "failed" for item in queue.items)
     duplicates = sum(item.status == "duplicate" for item in queue.items)
+    warnings = sum(len(item.acquisition.warnings) for item in queue.items if item.acquisition)
     duplicate_label = "duplicate" if duplicates == 1 else "duplicates"
     if not succeeded:
         return f"Finished: no tracks downloaded; {failed} failed, {duplicates} {duplicate_label} skipped."
-    return f"Finished: {succeeded} downloaded, {failed} failed, {duplicates} {duplicate_label} skipped."
+    message = f"Finished: {succeeded} downloaded, {failed} failed, {duplicates} {duplicate_label} skipped."
+    if warnings:
+        warning_label = "warning" if warnings == 1 else "warnings"
+        return f"{message[:-1]}; {warnings} metadata {warning_label}."
+    return message
 
 
 def _safe_playlist_path(artifacts: ArtifactPaths | None, output_folder: Path | None) -> Path | None:

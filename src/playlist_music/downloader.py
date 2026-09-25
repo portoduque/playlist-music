@@ -120,7 +120,8 @@ def run_single_download(
             True,
             final_path,
             _resolved_source(result.stdout, request.url or request.query),
-            f"Post-processing warning: {detail or 'metadata or cover could not be embedded.'}",
+            None,
+            (f"Post-processing warning: {detail or 'metadata or cover could not be embedded.'}",),
         )
     if result.returncode:
         detail = result.stderr.strip()[-900:]

@@ -49,6 +49,7 @@ class AcquisitionResult:
     output_path: Path | None
     source: str | None
     error: str | None
+    warnings: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)

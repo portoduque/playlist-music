@@ -290,14 +290,14 @@ Till I Collapse,Eminem,https://www.youtube.com/watch?v=...
 
 **Critérios de aceitação:**
 
-- [ ] Uma execução de duas faixas produz dois MP3s distintos, duas playlists e um relatório na subpasta.
-- [ ] Abrir pasta abre a subpasta da playlist; abrir playlist abre o `.m3u8` validado.
-- [ ] Aviso de metadados aparece como aviso, não reduz a contagem de músicas criadas.
+- [x] Uma execução de duas faixas produz dois MP3s distintos, duas playlists e um relatório na subpasta.
+- [x] Abrir pasta abre a subpasta da playlist; abrir playlist abre o `.m3u8` validado.
+- [x] Aviso de metadados aparece como aviso, não reduz a contagem de músicas criadas.
 
 **Testes:**
 
-- [ ] Integração completa com fake downloader e fake metadados, incluindo falha opcional.
-- [ ] Testes de ações de conclusão para a subpasta e de relatório para status mistos.
+- [x] Integração completa com fake downloader e fake metadados, incluindo falha opcional.
+- [x] Testes de ações de conclusão para a subpasta e de relatório para status mistos.
 
 **Arquivos prováveis:** `service.py`, `artifacts.py`, `app.py`, `ui_state.py`, testes de serviço/artefatos/UI.
 

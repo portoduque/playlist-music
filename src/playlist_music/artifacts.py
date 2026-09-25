@@ -32,17 +32,19 @@ def write_artifacts(root: Path, playlist_name: str, queue: QueueResult) -> Artif
     content = "#EXTM3U\n" + "".join(f"{entry}\n" for entry in entries)
     paths.m3u8.write_text(content, encoding="utf-8", newline="\n")
     paths.m3u.write_text(content, encoding="utf-8-sig", newline="\n")
-    report_lines = ["query\tstatus\tsource\tfile\terror"]
+    report_lines = ["query\tstatus\tsource\tfile\terror\twarnings"]
     for item, relative_path in zip(queue.items, relative_paths, strict=True):
         acquisition = item.acquisition
         source = acquisition.source if acquisition else ""
         error = acquisition.error if acquisition else "Duplicate request."
+        warnings = "; ".join(acquisition.warnings) if acquisition else ""
         values = (
             _redact_urls(item.request.query),
             item.status,
             _redact_urls(source or ""),
             relative_path.as_posix() if relative_path else "",
             _redact_urls(error or ""),
+            _redact_urls(warnings),
         )
         report_lines.append("\t".join(values))
     paths.report.write_text("\n".join(report_lines) + "\n", encoding="utf-8", newline="\n")

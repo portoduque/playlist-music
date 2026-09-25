@@ -59,7 +59,8 @@ def test_keeps_a_final_mp3_when_post_processing_returns_an_error(tmp_path) -> No
     assert result.succeeded is True
     assert result.output_path == tmp_path / "song.mp3"
     assert result.source == "https://example.com/song"
-    assert result.error == "Post-processing warning: cover failed"
+    assert result.error is None
+    assert result.warnings == ("Post-processing warning: cover failed",)
 
 
 def test_reports_timeout_without_a_final_file(tmp_path) -> None:
