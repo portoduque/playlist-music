@@ -38,6 +38,15 @@ Build order: `entrada` → `aquisicao` → `biblioteca` → `playlist` → `inte
 - Integrações específicas de Spotify, Apple Music ou outros serviços de streaming no primeiro lançamento.
 - Formatos de áudio além de MP3 e importação nativa de `.xlsx`.
 
+### CSV: validação e mapeamento de colunas
+
+Todo CSV importado abre uma janela modal de validação antes de alterar a lista atual. A janela mostra os cabeçalhos e até cinco linhas de prévia, sugere o vínculo de cada coluna e permite que o usuário confirme ou altere os campos do sistema: `title`, `artist` e `url`.
+
+- A sugestão automática compara cabeçalhos sem diferenciar maiúsculas/minúsculas, espaços, hífens e sublinhados. Reconhece aliases pequenos em português e inglês: título/música/faixa/song/track para `title`; artista/banda/artist/band/performer para `artist`; URL/link/source para `url`.
+- `title` e `url` são independentes: pelo menos um deve estar vinculado. `artist` é opcional. Uma mesma coluna não pode alimentar dois campos.
+- Ao confirmar, somente os campos vinculados chegam ao importador existente; colunas não vinculadas são ignoradas. Ao cancelar ou quando a validação falhar, a lista já importada não muda.
+- O formato continua CSV UTF-8 (com ou sem BOM) e usa a leitura padrão já suportada. Não haverá perfis salvos, transformação de colunas, importação de planilhas ou adivinhação de valores de cada linha neste escopo.
+
 ## Tech Stack
 
 - Python 3.11+.
@@ -135,6 +144,7 @@ Padrões: MP3, qualidade recomendada, capa e metadados ativados, deduplicação 
 ## Success Criteria
 
 - O usuário consegue importar cada formato suportado e recebe erros claros por item inválido.
+- Todo CSV passa por prévia e confirmação de mapeamento; cabeçalhos conhecidos já vêm sugeridos e um mapeamento inválido não substitui a entrada atual.
 - Uma lista válida gera uma pasta autocontida com MP3s, `resultado.txt`, `.m3u8` e `.m3u`.
 - As playlists usam caminhos relativos e funcionam quando a pasta inteira é movida.
 - Falhar uma música não cancela as demais.

@@ -369,3 +369,154 @@ Till I Collapse,Eminem,https://www.youtube.com/watch?v=...
 
 - A documentação oficial do `yt-dlp` descreve `--embed-metadata`, os campos que ele mapeia (título, artista, álbum, data, faixa etc.) e `--embed-thumbnail` como capa incorporada.
 - O projeto já usa `mutagen`; a documentação do `yt-dlp` o lista como dependência relevante para incorporação de miniatura em certos formatos.
+
+---
+
+# Plano de implementação: validação e mapeamento de CSV
+
+## Objetivo
+
+Tornar a importação de CSV previsível para pessoas não técnicas: o aplicativo sugere o significado dos cabeçalhos, mostra uma prévia curta e pede confirmação antes de substituir a lista atual. O usuário pode corrigir o vínculo entre as colunas do arquivo e `title`, `artist` e `url` sem editar o CSV manualmente.
+
+## Decisões de arquitetura
+
+- **Sempre validar CSV:** a página modal aparece para toda importação CSV; TXT, M3U, M3U8 e JSON continuam no fluxo atual.
+- **Uma única leitura padronizada:** a importação lê cabeçalhos e amostra em memória, devolvendo um contrato simples para a UI e reaproveitando a normalização atual após a confirmação.
+- **Aliases determinísticos:** normalizar apenas o cabeçalho e compará-lo a uma lista pequena PT/EN. Sem IA, rede ou heurística baseada no conteúdo das músicas.
+- **Três destinos reais:** a UI permite somente `title`, `artist` e `url`, que são os campos efetivamente aceitos pelo modelo atual. Colunas extras são ignoradas.
+- **Estado seguro:** cancelar, arquivo ilegível, cabeçalho duplicado ou mapeamento inválido não muda `InputState` nem a lista exibida.
+- **Sem persistência:** não salvar perfis de mapeamento nem adicionar dependências; um CSV é confirmado uma vez por importação.
+
+## Contrato de mapeamento
+
+| Campo do sistema | Obrigatoriedade | Aliases sugeridos |
+| --- | --- | --- |
+| `title` | obrigatório se `url` estiver ausente | `title`, `titulo`, `música`, `musica`, `song`, `track`, `faixa`, `name` |
+| `artist` | opcional | `artist`, `artista`, `band`, `banda`, `performer`, `singer` |
+| `url` | obrigatório se `title` estiver ausente | `url`, `link`, `source`, `fonte` |
+
+O mapeamento usa a identidade da coluna, não apenas o texto do cabeçalho. Cabeçalhos vazios ou repetidos são erros claros. A mesma coluna não pode ser escolhida para dois campos. Depois da confirmação, linhas seguem as regras atuais: linhas vazias são ignoradas e cada linha sem título e URL recebe erro localizado.
+
+## Fluxo do usuário
+
+```text
+Import file → selecionar CSV → ler cabeçalho/amostra
+  → modal: prévia + sugestões de Title/Artist/URL
+  → Confirm → validar mapeamento → normalizar linhas → atualizar resumo
+  → Cancel/erro → manter lista anterior e explicar o motivo
+```
+
+## Dependências e ordem
+
+```text
+C1 prévia e sugestões puras
+  └─ C2 validação e normalização pelo mapeamento
+       └─ C3 modal e integração com InputState
+            └─ C4 documentação e verificação final
+```
+
+### Task C1 — Criar contrato de prévia e sugestão automática
+
+**Descrição:** Adicionar à camada de importação um contrato imutável para cabeçalhos, até cinco linhas de prévia e sugestões de `title`, `artist` e `url`, sem alterar o parser CSV existente.
+
+**Critérios de aceitação:**
+
+- [ ] CSV UTF-8/BOM retorna cabeçalhos distintos, até cinco linhas e sugestões determinísticas para aliases PT/EN.
+- [ ] Cabeçalho vazio, duplicado ou arquivo ilegível retorna erro legível e não produz prévia utilizável.
+- [ ] A sugestão não infere valores de músicas, não acessa rede e não escolhe duas colunas para o mesmo campo.
+
+**Testes:**
+
+- [ ] Casos para aliases, espaços/hífens/sublinhados, Unicode, nenhuma correspondência, duplicata e BOM.
+- [ ] `py -m pytest tests/test_tabular_import.py` e `py -m ruff check .` passam.
+
+**Arquivos prováveis:** `src/playlist_music/imports.py`, `src/playlist_music/models.py`, `tests/test_tabular_import.py`.
+
+### Task C2 — Aplicar mapeamento validado ao parser CSV
+
+**Descrição:** Transformar uma prévia confirmada em `ImportResult`, reutilizando a normalização de `TrackRequest` e preservando as regras de erro por linha.
+
+**Critérios de aceitação:**
+
+- [ ] Um CSV com cabeçalhos não convencionais importa corretamente após o usuário selecionar as três colunas.
+- [ ] O parser recusa mapa sem `title` e `url`, mapa com a mesma coluna em dois destinos e coluna inexistente.
+- [ ] O caminho atual para CSV canônico continua compatível com seus testes existentes.
+
+**Testes:**
+
+- [ ] Casos para título sem URL, URL sem título, artista opcional, campos entre aspas, linhas inválidas e mapa inválido.
+- [ ] `py -m pytest tests/test_tabular_import.py` e `py -m ruff check .` passam.
+
+**Arquivos prováveis:** `src/playlist_music/imports.py`, `src/playlist_music/models.py`, `tests/test_tabular_import.py`.
+
+### Checkpoint C-A — Contrato CSV seguro
+
+- [ ] C1 e C2 passam em testes focados sem rede.
+- [ ] Um CSV com `Musica`, `Banda` e `Link` vira os mesmos `TrackRequest` de um CSV canônico.
+- [ ] Nenhum mapeamento inválido substitui uma lista existente.
+
+### Task C3 — Exibir e confirmar o mapeamento na interface
+
+**Descrição:** No fluxo de `Import file`, abrir um modal Tkinter para CSV com prévia e seletores simples para Title, Artist e URL. Confirmar aplica o parser; cancelar mantém a entrada e o resumo anteriores.
+
+**Critérios de aceitação:**
+
+- [ ] Ao escolher CSV, a janela mostra até cinco linhas e pré-seleciona aliases conhecidos.
+- [ ] Confirmar habilita apenas um mapeamento válido; o resumo mostra o resultado importado.
+- [ ] Cancelar, fechar a janela ou encontrar erro mantém `InputState` intacto e mostra uma mensagem recuperável.
+
+**Testes:**
+
+- [ ] Testes de estado/controlador para confirmar, cancelar e erro sem depender de uma janela Tk real.
+- [ ] Smoke manual: importar um CSV de cabeçalho não convencional, corrigir um seletor e confirmar a contagem correta.
+- [ ] `py -m pytest tests/test_ui_state.py tests/test_tabular_import.py` e `py -m ruff check .` passam.
+
+**Arquivos prováveis:** `src/playlist_music/app.py`, `src/playlist_music/ui_state.py`, `tests/test_ui_state.py`, `tests/test_tabular_import.py`.
+
+### Task C4 — Documentar e validar o fluxo CSV
+
+**Descrição:** Atualizar a porta de entrada pública com um exemplo de CSV não convencional e o fluxo de validação. Executar a verificação completa sem incluir arquivos de música ou listas pessoais no Git.
+
+**Critérios de aceitação:**
+
+- [ ] README explica que CSV sempre abre uma confirmação, quais campos o sistema entende e como ignorar colunas extras.
+- [ ] README não promete reconhecimento de qualquer cabeçalho nem suporte a Excel/perfis salvos.
+- [ ] O plano e a lista de tarefas registram as provas automatizadas e manuais realizadas.
+
+**Testes e verificação:**
+
+- [ ] `py -m pytest` e `py -m ruff check .` passam.
+- [ ] Smoke manual confirma importação, correção de vínculo, cancelamento e preservação da lista anterior.
+- [ ] Revisão final confirma que nenhum CSV pessoal, arquivo de áudio ou segredo entra no repositório.
+
+**Arquivos prováveis:** `README.md`, `tasks/plan.md`, `tasks/todo.md`.
+
+### Checkpoint C-B — Mapeamento pronto para uso
+
+- [ ] C1–C4 concluídas com testes focados.
+- [ ] Suíte e Ruff passam.
+- [ ] O fluxo manual confirma sugestão, correção, confirmação e cancelamento.
+
+## Matriz de testes
+
+| Camada | Casos | Rede |
+| --- | --- | --- |
+| Prévia | BOM, Unicode, cabeçalho vazio/duplicado, aliases e amostra limitada | Nunca |
+| Mapeamento | destino obrigatório, coluna inexistente, duplicidade e colunas ignoradas | Nunca |
+| Parser | aspas, ordem das colunas, URL/título isolados e erro por linha | Nunca |
+| Estado/UI | confirmar, cancelar, fechar e preservar importação anterior | Nunca |
+| Manual | CSV de cabeçalho não convencional corrigido no modal | Nunca |
+
+## Riscos e tratamento
+
+| Risco | Tratamento |
+| --- | --- |
+| Alias ambíguo | Não escolher silenciosamente; deixar o campo sem seleção para o usuário decidir. |
+| Cabeçalho repetido | Bloquear confirmação com erro, em vez de depender da posição escondida. |
+| Usuário cancela | Não chamar `set_imported`; manter estado anterior. |
+| Modal cresce demais | Limitar prévia a cinco linhas e três seletores. |
+| CSV pessoal no teste | Usar fixtures sintéticas mínimas e não versionar arquivos reais. |
+
+## Fora deste plano
+
+- Importação `.xlsx`/`.xls`, detecção de delimitador, edição de células, perfis salvos e mapeamento de campos de metadados ainda inexistentes no modelo.

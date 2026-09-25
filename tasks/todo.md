@@ -493,3 +493,97 @@
 - [x] Every M task is complete with focused tests.
 - [x] Full suite and Ruff pass.
 - [x] Manual authorized smoke confirms a portable, organized playlist folder.
+
+---
+
+# CSV column-mapping validation tasks
+
+## Task C1: Build CSV preview and deterministic header suggestions
+
+**Description:** Read a CSV into a safe preview and suggest `title`, `artist`, and `url` mappings without changing the current import state.
+
+**Acceptance criteria:**
+
+- [ ] Supports UTF-8/BOM, a five-row preview, PT/EN aliases, and deterministic suggestions.
+- [ ] Rejects unreadable files and empty or duplicate headers with a recoverable error.
+- [ ] Never accesses the network or infers music values from row contents.
+
+**Verification:**
+
+- [ ] Focused parser tests cover aliases, Unicode, BOM, missing matches and duplicate headers.
+- [ ] `py -m pytest tests/test_tabular_import.py` and `py -m ruff check .`.
+
+**Dependencies:** None
+
+**Estimated scope:** Small (3 files)
+
+## Task C2: Normalize CSV using a confirmed mapping
+
+**Description:** Validate user-selected columns and reuse the existing request normalizer to create `TrackRequest` values.
+
+**Acceptance criteria:**
+
+- [ ] Nonstandard headers import after mapping title, artist, and URL.
+- [ ] Rejects missing title-and-URL, duplicate destinations, and unknown columns.
+- [ ] Existing canonical CSV parsing remains compatible.
+
+**Verification:**
+
+- [ ] Focused tests cover quoted values, optional artist, title-only, URL-only, invalid rows and invalid mappings.
+- [ ] `py -m pytest tests/test_tabular_import.py` and `py -m ruff check .`.
+
+**Dependencies:** Task C1
+
+**Estimated scope:** Small (3 files)
+
+## Checkpoint C-A: CSV mapping contract
+
+- [ ] Tasks C1–C2 pass focused tests without network.
+- [ ] `Musica`, `Banda`, `Link` maps to the same normalized requests as canonical headers.
+- [ ] Invalid mappings leave the existing import untouched.
+
+## Task C3: Add the CSV mapping confirmation dialog
+
+**Description:** Open a small Tkinter modal for every CSV import, showing a preview and three mapping selectors before applying data.
+
+**Acceptance criteria:**
+
+- [ ] Known aliases are preselected and the preview has at most five rows.
+- [ ] Confirm applies only valid mappings and updates the existing summary.
+- [ ] Cancel, close, or validation error preserves the previous input state.
+
+**Verification:**
+
+- [ ] State/controller tests cover confirm, cancel, and validation failure without a Tk window.
+- [ ] Manual smoke maps a nonstandard CSV and verifies cancellation preserves the current list.
+- [ ] `py -m pytest tests/test_ui_state.py tests/test_tabular_import.py` and `py -m ruff check .`.
+
+**Dependencies:** Checkpoint C-A
+
+**Estimated scope:** Medium (4 files)
+
+## Task C4: Document and verify CSV mapping
+
+**Description:** Document the validation flow and verify the final behavior without committing personal lists or media.
+
+**Acceptance criteria:**
+
+- [ ] README explains confirmation, supported system fields, and ignored columns accurately.
+- [ ] README does not promise universal header recognition, Excel support, or saved profiles.
+- [ ] Plan records automated and manual verification evidence.
+
+**Verification:**
+
+- [ ] `py -m pytest` and `py -m ruff check .`.
+- [ ] Manual smoke covers suggestion, correction, confirmation, and cancellation.
+- [ ] No personal CSV, audio file, or secret is committed.
+
+**Dependencies:** Task C3
+
+**Estimated scope:** Small (3 files)
+
+## Checkpoint C-B: CSV mapping complete
+
+- [ ] Tasks C1–C4 complete with focused checks.
+- [ ] Full suite and Ruff pass.
+- [ ] Manual flow confirms suggestion, correction, confirmation, and cancellation.
