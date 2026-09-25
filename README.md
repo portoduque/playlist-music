@@ -18,6 +18,17 @@ O escopo planejado, a ordem de implementação e os critérios de aceite estão 
 
 O código já normaliza consultas e URLs HTTP(S) por texto colado, `.txt` UTF-8 (com ou sem BOM), `.csv`, `.m3u`, `.m3u8` e `.json`. Em CSV, `title`, `artist` e `url` podem aparecer em qualquer ordem; títulos entre aspas são aceitos. M3U ignora comentários e mantém caminhos relativos. JSON aceita uma lista de strings ou objetos simples com `title`, `artist` e `url`. Linhas vazias são ignoradas, a ordem e a origem são preservadas, e problemas por item são recuperáveis. A tela já aceita texto colado e importa esses cinco formatos, mostrando a contagem válida/inválida.
 
+#### CSV recomendado
+
+Para obter a correspondência e os nomes de arquivo mais confiáveis, informe uma URL de fonte autorizada junto com título e artista:
+
+```csv
+title,artist,url
+Faint,Linkin Park,https://youtube.com/watch?v=SEU_ID_AUTORIZADO
+```
+
+Substitua o valor de exemplo pela URL que você tem permissão para baixar. As colunas opcionais `album`, `date`, `genre` e `cover_url` complementam as tags quando esses dados não estiverem na fonte.
+
 ```python
 from pathlib import Path
 
@@ -40,6 +51,19 @@ json_result = parse_json_file(Path("minhas-musicas.json"))
 
 Cada criação gera uma subpasta própria dentro da pasta escolhida, usando o nome da playlist. O código sanitiza nomes para Windows, bloqueia componentes de caminho inseguros, evita colisões com sufixos determinísticos (`Nome`, `Nome (2)`) e identifica duplicatas preservando a primeira ocorrência. Na execução unitária de uma faixa, só há sucesso depois que o MP3 final existe dentro dessa subpasta; arquivos parciais não contam como concluídos e um arquivo existente não é sobrescrito.
 
+Exemplo de resultado:
+
+```text
+Pasta escolhida/
+└── Rock para trabalhar/
+    ├── 001 - Linkin Park - Faint.mp3
+    ├── Rock para trabalhar.m3u
+    ├── Rock para trabalhar.m3u8
+    └── resultado.txt
+```
+
+Os caminhos das playlists são relativos à própria pasta. Por isso, você pode mover a pasta inteira sem precisar editar os arquivos `.m3u` e `.m3u8`.
+
 ### Pré-checagem, execução e fila interna
 
 O código verifica se o FFmpeg está disponível e se o módulo instalado do `yt-dlp` responde à consulta de versão. Também monta comandos de extração MP3 com qualidade `recommended` (padrão), `balanced` ou `compact`; cada argumento permanece separado, sem shell. Já existe um executor interno para uma faixa, com timeout, erro limitado, proteção contra sobrescrita e validação do arquivo final. A fila interna processa itens em ordem, comunica progresso e continua após falhas; sucessos, falhas e duplicatas têm estados finais distintos.
@@ -47,6 +71,8 @@ O código verifica se o FFmpeg está disponível e se o módulo instalado do `yt
 ### Metadados internos
 
 O download pede ao `yt-dlp` para incorporar os metadados e a capa que a fonte disponibilizar no MP3. Em CSV ou JSON, `title` e `artist` explícitos substituem os valores conflitantes da fonte; álbum, data, gênero e capa já presentes são preservados. Cada faixa também recebe seu número de ordem. Metadados e capas são opcionais: se a etapa de pós-processamento falhar, um MP3 final válido é mantido e o aviso é registrado.
+
+Em ordem de prioridade, título e artista informados no CSV ou JSON vencem os dados da fonte; os dados da fonte vencem a consulta textual usada como alternativa. Uma busca apenas por texto usa o primeiro resultado encontrado e pode selecionar uma versão incorreta. Quando a precisão importar, informe URL, título e artista.
 
 ### Playlists e relatório internos
 
@@ -121,6 +147,7 @@ SPEC.md              especificação viva do MVP
 
 - O projeto não deve contornar DRM, proteções de acesso, termos de uso ou usar cookies e credenciais de terceiros.
 - O processamento será local; listas e arquivos do usuário não devem ser enviados a serviços externos sem solicitação explícita.
+- Nem toda fonte fornece capa ou metadados completos; o aplicativo preserva o que recebeu, mas não inventa informações ausentes.
 - Fontes específicas com autenticação, integrações de streaming e outros formatos de áudio permanecem fora do escopo inicial.
 
 ## Como contribuir

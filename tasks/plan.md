@@ -314,14 +314,14 @@ Till I Collapse,Eminem,https://www.youtube.com/watch?v=...
 
 **Critérios de aceitação:**
 
-- [ ] Um usuário novo consegue criar uma pasta organizada seguindo apenas o README.
-- [ ] O README não promete correspondência perfeita em buscas textuais nem metadados inexistentes na fonte.
+- [x] Um usuário novo consegue criar uma pasta organizada seguindo apenas o README.
+- [x] O README não promete correspondência perfeita em buscas textuais nem metadados inexistentes na fonte.
 
 **Testes e verificação:**
 
-- [ ] `py -m pytest` e `py -m ruff check .` passam.
+- [x] `py -m pytest` e `py -m ruff check .` passam.
 - [ ] Smoke manual com duas fontes autorizadas: verificar dois MP3s, tags em um player/editor e playlist `.m3u8` após mover a pasta.
-- [ ] Revisão final confirma que nenhuma mídia de teste não licenciada entra no repositório.
+- [x] Revisão final confirma que nenhuma mídia de teste não licenciada entra no repositório.
 
 **Arquivos prováveis:** `README.md`, `tasks/plan.md`, `tasks/todo.md`.
 

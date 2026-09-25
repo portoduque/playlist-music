@@ -475,14 +475,14 @@
 
 **Acceptance criteria:**
 
-- [ ] README documents the recommended CSV, folder structure, priority rules, and limitations accurately.
-- [ ] No unsupported guarantee about automatic matching or source metadata remains.
+- [x] README documents the recommended CSV, folder structure, priority rules, and limitations accurately.
+- [x] No unsupported guarantee about automatic matching or source metadata remains.
 
 **Verification:**
 
-- [ ] `py -m pytest` and `py -m ruff check .`.
+- [x] `py -m pytest` and `py -m ruff check .`.
 - [ ] Authorized manual smoke: two separate MP3s, tags in a player/editor, and `.m3u8` survives moving the folder.
-- [ ] Verify no unlicensed media fixture is committed.
+- [x] Verify no unlicensed media fixture is committed.
 
 **Dependencies:** Task M5
 
@@ -491,5 +491,5 @@
 ## Checkpoint M-C: Extension complete
 
 - [ ] Every M task is complete with focused tests.
-- [ ] Full suite and Ruff pass.
+- [x] Full suite and Ruff pass.
 - [ ] Manual authorized smoke confirms a portable, organized playlist folder.
