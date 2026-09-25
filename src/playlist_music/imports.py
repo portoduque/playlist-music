@@ -6,7 +6,7 @@ import re
 from pathlib import Path
 from urllib.parse import urlsplit
 
-from playlist_music.models import CsvPreview, ImportIssue, ImportResult, TrackRequest
+from playlist_music.models import CsvColumnMapping, CsvPreview, ImportIssue, ImportResult, TrackRequest
 
 
 URL_PREFIX = re.compile(r"^[A-Za-z][A-Za-z0-9+.-]*://")
@@ -72,22 +72,22 @@ def preview_csv_file(path: Path) -> CsvPreview:
     )
 
 
-def parse_csv_file(path: Path) -> ImportResult:
+def parse_csv_file(path: Path, mapping: CsvColumnMapping | None = None) -> ImportResult:
     """Read CSV rows containing title, artist, and optional URL columns."""
     requests: list[TrackRequest] = []
     issues: list[ImportIssue] = []
     try:
         with path.open(encoding="utf-8-sig", newline="") as source:
             reader = csv.DictReader(source)
-            headers = {name.strip().lower(): name for name in reader.fieldnames or []}
-            if not {"title", "url"} & headers.keys():
-                return ImportResult([], [ImportIssue(1, "CSV header needs title or url.")])
+            columns, mapping_error = _csv_columns(reader.fieldnames or [], mapping)
+            if mapping_error:
+                return ImportResult([], [ImportIssue(1, mapping_error)])
 
             for row in reader:
                 line_number = reader.line_num
-                title = _csv_value(row, headers, "title")
-                artist = _csv_value(row, headers, "artist")
-                url = _csv_value(row, headers, "url")
+                title = _csv_value(row, columns["title"])
+                artist = _csv_value(row, columns["artist"])
+                url = _csv_value(row, columns["url"])
                 if not title and not artist and not url:
                     continue
                 if not title and not url:
@@ -189,8 +189,33 @@ def _append_request(
     requests.append(TrackRequest(line_number, query, title=title, artist=artist))
 
 
-def _csv_value(row: dict[str, str | None], headers: dict[str, str], name: str) -> str:
-    return (row.get(headers.get(name, "")) or "").strip()
+def _csv_columns(
+    fieldnames: list[str], mapping: CsvColumnMapping | None
+) -> tuple[dict[str, str | None], str | None]:
+    available = {name.strip(): name for name in fieldnames}
+    if mapping is None:
+        canonical = {name.strip().lower(): name for name in fieldnames}
+        if not {"title", "url"} & canonical.keys():
+            return {}, "CSV header needs title or url."
+        return {field: canonical.get(field) for field in ("title", "artist", "url")}, None
+
+    selected = (mapping.title_column, mapping.artist_column, mapping.url_column)
+    if not mapping.title_column and not mapping.url_column:
+        return {}, "CSV mapping needs title or url."
+    selected_columns = [column for column in selected if column]
+    if len(set(selected_columns)) != len(selected_columns):
+        return {}, "CSV mapping cannot use one column for multiple fields."
+    if any(column not in available for column in selected_columns):
+        return {}, "CSV mapping references an unknown column."
+    return {
+        "title": available.get(mapping.title_column or ""),
+        "artist": available.get(mapping.artist_column or ""),
+        "url": available.get(mapping.url_column or ""),
+    }, None
+
+
+def _csv_value(row: dict[str, str | None], column: str | None) -> str:
+    return (row.get(column or "") or "").strip()
 
 
 def _header_key(value: str) -> str:

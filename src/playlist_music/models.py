@@ -45,6 +45,15 @@ class CsvPreview:
 
 
 @dataclass(frozen=True, slots=True)
+class CsvColumnMapping:
+    """User-confirmed CSV columns for the fields the app understands."""
+
+    title_column: str | None = None
+    artist_column: str | None = None
+    url_column: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
 class DeduplicationResult:
     """Requests retained for processing and requests skipped as duplicates."""
 

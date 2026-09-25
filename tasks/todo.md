@@ -523,14 +523,14 @@
 
 **Acceptance criteria:**
 
-- [ ] Nonstandard headers import after mapping title, artist, and URL.
-- [ ] Rejects missing title-and-URL, duplicate destinations, and unknown columns.
-- [ ] Existing canonical CSV parsing remains compatible.
+- [x] Nonstandard headers import after mapping title, artist, and URL.
+- [x] Rejects missing title-and-URL, duplicate destinations, and unknown columns.
+- [x] Existing canonical CSV parsing remains compatible.
 
 **Verification:**
 
-- [ ] Focused tests cover quoted values, optional artist, title-only, URL-only, invalid rows and invalid mappings.
-- [ ] `py -m pytest tests/test_tabular_import.py` and `py -m ruff check .`.
+- [x] Focused tests cover quoted values, optional artist, title-only, URL-only, invalid rows and invalid mappings.
+- [x] `py -m pytest tests/test_tabular_import.py` and `py -m ruff check .`.
 
 **Dependencies:** Task C1
 
@@ -538,8 +538,8 @@
 
 ## Checkpoint C-A: CSV mapping contract
 
-- [ ] Tasks C1–C2 pass focused tests without network.
-- [ ] `Musica`, `Banda`, `Link` maps to the same normalized requests as canonical headers.
+- [x] Tasks C1–C2 pass focused tests without network.
+- [x] `Musica`, `Banda`, `Link` maps to the same normalized requests as canonical headers.
 - [ ] Invalid mappings leave the existing import untouched.
 
 ## Task C3: Add the CSV mapping confirmation dialog

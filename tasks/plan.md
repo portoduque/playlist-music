@@ -438,21 +438,21 @@ C1 prévia e sugestões puras
 
 **Critérios de aceitação:**
 
-- [ ] Um CSV com cabeçalhos não convencionais importa corretamente após o usuário selecionar as três colunas.
-- [ ] O parser recusa mapa sem `title` e `url`, mapa com a mesma coluna em dois destinos e coluna inexistente.
-- [ ] O caminho atual para CSV canônico continua compatível com seus testes existentes.
+- [x] Um CSV com cabeçalhos não convencionais importa corretamente após o usuário selecionar as três colunas.
+- [x] O parser recusa mapa sem `title` e `url`, mapa com a mesma coluna em dois destinos e coluna inexistente.
+- [x] O caminho atual para CSV canônico continua compatível com seus testes existentes.
 
 **Testes:**
 
-- [ ] Casos para título sem URL, URL sem título, artista opcional, campos entre aspas, linhas inválidas e mapa inválido.
-- [ ] `py -m pytest tests/test_tabular_import.py` e `py -m ruff check .` passam.
+- [x] Casos para título sem URL, URL sem título, artista opcional, campos entre aspas, linhas inválidas e mapa inválido.
+- [x] `py -m pytest tests/test_tabular_import.py` e `py -m ruff check .` passam.
 
 **Arquivos prováveis:** `src/playlist_music/imports.py`, `src/playlist_music/models.py`, `tests/test_tabular_import.py`.
 
 ### Checkpoint C-A — Contrato CSV seguro
 
-- [ ] C1 e C2 passam em testes focados sem rede.
-- [ ] Um CSV com `Musica`, `Banda` e `Link` vira os mesmos `TrackRequest` de um CSV canônico.
+- [x] C1 e C2 passam em testes focados sem rede.
+- [x] Um CSV com `Musica`, `Banda` e `Link` vira os mesmos `TrackRequest` de um CSV canônico.
 - [ ] Nenhum mapeamento inválido substitui uma lista existente.
 
 ### Task C3 — Exibir e confirmar o mapeamento na interface
