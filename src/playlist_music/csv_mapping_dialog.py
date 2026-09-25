@@ -97,4 +97,3 @@ def show_csv_mapping_dialog(
     dialog.bind("<Escape>", lambda _event: close())
     update_confirmation()
     dialog.focus_set()
-
