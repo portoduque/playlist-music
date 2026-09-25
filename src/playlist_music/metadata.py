@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from mutagen import MutagenError
-from mutagen.id3 import APIC, ID3, ID3NoHeaderError, TALB, TIT2, TPE1
+from mutagen.id3 import APIC, ID3, ID3NoHeaderError, TALB, TIT2, TPE1, TRCK
 
 
 @dataclass(frozen=True, slots=True)
@@ -20,6 +20,9 @@ def write_metadata(
     artist: str | None,
     album: str | None,
     cover_path: Path | None = None,
+    *,
+    fallback_title: str | None = None,
+    track_number: str | None = None,
 ) -> MetadataResult:
     """Write available ID3 fields and a JPEG/PNG cover without deleting audio."""
     try:
@@ -29,13 +32,16 @@ def write_metadata(
     except (OSError, MutagenError):
         return MetadataResult(["Could not read audio tags."])
 
-    if title:
-        tags.add(TIT2(encoding=3, text=title))
+    fallback_needed = bool(fallback_title and not tags.get("TIT2"))
+    if title or fallback_needed:
+        tags.add(TIT2(encoding=3, text=title or fallback_title))
     if artist:
         tags.add(TPE1(encoding=3, text=artist))
     if album:
         tags.add(TALB(encoding=3, text=album))
-    if title or artist or album:
+    if track_number:
+        tags.add(TRCK(encoding=3, text=track_number))
+    if title or artist or album or track_number or fallback_needed:
         try:
             tags.save(audio_path)
         except (OSError, MutagenError):

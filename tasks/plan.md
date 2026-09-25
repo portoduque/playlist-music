@@ -265,15 +265,15 @@ Till I Collapse,Eminem,https://www.youtube.com/watch?v=...
 
 **Critérios de aceitação:**
 
-- [ ] CSV com `title` e `artist` sempre vence dados conflituosos incorporados pela fonte.
-- [ ] Álbum, ano/data e capa incorporados não desaparecem após a etapa local.
-- [ ] Um MP3 sem tags recebe ao menos título de fallback e número da faixa.
-- [ ] Falha de tag deixa o MP3 e o restante da playlist utilizáveis.
+- [x] CSV com `title` e `artist` sempre vence dados conflituosos incorporados pela fonte.
+- [x] Álbum, ano/data e capa incorporados não desaparecem após a etapa local.
+- [x] Um MP3 sem tags recebe ao menos título de fallback e número da faixa.
+- [x] Falha de tag deixa o MP3 e o restante da playlist utilizáveis.
 
 **Testes:**
 
-- [ ] Fixture MP3/ID3 com campos de fonte; validar precedência, preservação e `TRCK`.
-- [ ] Casos sem CSV, sem metadados de origem e exceção do escritor.
+- [x] Fixture MP3/ID3 com campos de fonte; validar precedência, preservação e `TRCK`.
+- [x] Casos sem CSV, sem metadados de origem e exceção do escritor.
 
 **Arquivos prováveis:** `metadata.py`, `service.py`, `tests/test_metadata.py`, `tests/test_service.py`.
 

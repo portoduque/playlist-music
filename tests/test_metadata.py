@@ -1,6 +1,6 @@
 """Metadata writes keep the original audio bytes when optional data fails."""
 
-from mutagen.id3 import ID3
+from mutagen.id3 import APIC, ID3, TALB, TCON, TDRC, TIT2, TPE1
 
 from playlist_music import metadata
 
@@ -75,3 +75,58 @@ def test_allows_missing_optional_metadata(tmp_path) -> None:
 
     assert result.issues == []
     assert audio.read_bytes() == b"audio"
+
+
+def test_explicit_fields_override_source_tags_and_preserve_other_metadata(tmp_path) -> None:
+    audio = tmp_path / "song.mp3"
+    audio.write_bytes(b"audio")
+    source_tags = ID3()
+    source_tags.add(TIT2(encoding=3, text="Source title"))
+    source_tags.add(TPE1(encoding=3, text="Source artist"))
+    source_tags.add(TALB(encoding=3, text="Source album"))
+    source_tags.add(TDRC(encoding=3, text="2020"))
+    source_tags.add(TCON(encoding=3, text="Rock"))
+    source_tags.add(APIC(encoding=3, mime="image/jpeg", type=3, desc="Cover", data=b"cover"))
+    source_tags.save(audio)
+
+    result = metadata.write_metadata(
+        audio,
+        "CSV title",
+        "CSV artist",
+        None,
+        fallback_title="Search query",
+        track_number="2",
+    )
+    tags = ID3(audio)
+
+    assert result.issues == []
+    assert tags.get("TIT2").text == ["CSV title"]
+    assert tags.get("TPE1").text == ["CSV artist"]
+    assert tags.get("TALB").text == ["Source album"]
+    assert str(tags.get("TDRC")) == "2020"
+    assert tags.get("TCON").text == ["Rock"]
+    assert tags.getall("APIC")[0].data == b"cover"
+    assert tags.get("TRCK").text == ["2"]
+
+
+def test_uses_fallback_title_only_when_the_source_has_no_title(tmp_path) -> None:
+    audio = tmp_path / "song.mp3"
+    audio.write_bytes(b"audio")
+
+    result = metadata.write_metadata(audio, None, None, None, fallback_title="Search query")
+
+    assert result.issues == []
+    assert ID3(audio).get("TIT2").text == ["Search query"]
+
+
+def test_preserves_a_source_title_when_only_a_fallback_is_available(tmp_path) -> None:
+    audio = tmp_path / "song.mp3"
+    audio.write_bytes(b"audio")
+    tags = ID3()
+    tags.add(TIT2(encoding=3, text="Source title"))
+    tags.save(audio)
+
+    result = metadata.write_metadata(audio, None, None, None, fallback_title="Search query")
+
+    assert result.issues == []
+    assert ID3(audio).get("TIT2").text == ["Source title"]

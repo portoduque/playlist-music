@@ -46,7 +46,7 @@ O código verifica se o FFmpeg está disponível e se o módulo instalado do `yt
 
 ### Metadados internos
 
-O download pede ao `yt-dlp` para incorporar os metadados e a capa que a fonte disponibilizar no MP3. O módulo local também grava título, artista e álbum em tags ID3 e pode incorporar uma capa PNG ou JPEG. Metadados e capas são opcionais: se a etapa de pós-processamento falhar, um MP3 final válido é mantido e o aviso é registrado; dados explícitos do CSV terão prioridade em uma etapa posterior.
+O download pede ao `yt-dlp` para incorporar os metadados e a capa que a fonte disponibilizar no MP3. Em CSV ou JSON, `title` e `artist` explícitos substituem os valores conflitantes da fonte; álbum, data, gênero e capa já presentes são preservados. Cada faixa também recebe seu número de ordem. Metadados e capas são opcionais: se a etapa de pós-processamento falhar, um MP3 final válido é mantido e o aviso é registrado.
 
 ### Playlists e relatório internos
 

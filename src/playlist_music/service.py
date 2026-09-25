@@ -29,7 +29,7 @@ class ServiceResult:
     output_folder: Path | None = None
 
 
-MetadataWriter = Callable[[Path, str | None, str | None, str | None], MetadataResult]
+MetadataWriter = Callable[..., MetadataResult]
 
 
 def create_playlist(
@@ -65,6 +65,13 @@ def create_playlist(
     queue = process_queue(imported.requests, acquire, on_progress)
     for item in queue.items:
         if item.status == "succeeded" and item.acquisition and item.acquisition.output_path:
-            write_tags(item.acquisition.output_path, item.request.query, None, None)
+            write_tags(
+                item.acquisition.output_path,
+                item.request.title,
+                item.request.artist,
+                None,
+                fallback_title=item.request.query,
+                track_number=str(item.request.line_number),
+            )
     artifacts = write_artifacts(output_folder, playlist_name, queue)
     return ServiceResult(True, None, queue, artifacts, output_folder)

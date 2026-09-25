@@ -431,15 +431,15 @@
 
 **Acceptance criteria:**
 
-- [ ] CSV title/artist override conflicting source tags.
-- [ ] Existing album, date/year, genre, and cover persist when not overridden.
-- [ ] `TRCK` reflects input order.
-- [ ] A tag-write error preserves the MP3 and is reportable as a warning.
+- [x] CSV title/artist override conflicting source tags.
+- [x] Existing album, date/year, genre, and cover persist when not overridden.
+- [x] `TRCK` reflects input order.
+- [x] A tag-write error preserves the MP3 and is reportable as a warning.
 
 **Verification:**
 
-- [ ] Local ID3 fixture tests for precedence, preservation, fallback, and writer failure.
-- [ ] `py -m pytest` and `py -m ruff check .`.
+- [x] Local ID3 fixture tests for precedence, preservation, fallback, and writer failure.
+- [x] `py -m pytest` and `py -m ruff check .`.
 
 **Dependencies:** Tasks M1 and M3
 
@@ -447,8 +447,8 @@
 
 ## Checkpoint M-B: Metadata resilience
 
-- [ ] M3/M4 focused tests pass without network.
-- [ ] Source tags/capa are requested, explicit fields win, and a tag warning never removes valid audio.
+- [x] M3/M4 focused tests pass without network.
+- [x] Source tags/capa are requested, explicit fields win, and a tag warning never removes valid audio.
 
 ## Task M5: Surface the organized result in artifacts and UI
 

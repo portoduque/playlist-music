@@ -11,7 +11,10 @@ from playlist_music.service import create_playlist
 def test_creates_a_complete_folder_with_fake_dependencies(tmp_path) -> None:
     root = tmp_path / "library"
     playlist_folder = root / "Minha Playlist"
-    requests = [TrackRequest(1, "One"), TrackRequest(2, "Two")]
+    requests = [
+        TrackRequest(1, "One", title="CSV One", artist="Artist One"),
+        TrackRequest(2, "Two"),
+    ]
     metadata_calls = []
     events = []
 
@@ -21,8 +24,8 @@ def test_creates_a_complete_folder_with_fake_dependencies(tmp_path) -> None:
         output.write_bytes(b"audio")
         return AcquisitionResult(request, True, output, "https://example.com/song", None)
 
-    def write_tags(*args) -> MetadataResult:
-        metadata_calls.append(args)
+    def write_tags(*args, **kwargs) -> MetadataResult:
+        metadata_calls.append((args, kwargs))
         return MetadataResult([])
 
     result = create_playlist(
@@ -38,7 +41,10 @@ def test_creates_a_complete_folder_with_fake_dependencies(tmp_path) -> None:
     assert result.started is True
     assert [item.status for item in result.queue.items] == ["succeeded", "succeeded"]
     assert [event.completed for event in events] == [1, 2]
-    assert len(metadata_calls) == 2
+    assert metadata_calls == [
+        ((playlist_folder / "001 - One.mp3", "CSV One", "Artist One", None), {"fallback_title": "One", "track_number": "1"}),
+        ((playlist_folder / "002 - Two.mp3", None, None, None), {"fallback_title": "Two", "track_number": "2"}),
+    ]
     assert result.output_folder == playlist_folder
     assert result.artifacts.m3u8.parent == playlist_folder
     assert result.artifacts.m3u8.read_text(encoding="utf-8") == "#EXTM3U\n001 - One.mp3\n002 - Two.mp3\n"
