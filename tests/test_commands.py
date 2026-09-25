@@ -63,6 +63,19 @@ def test_builds_literal_arguments_for_queries_with_shell_characters(tmp_path) ->
     assert "--embed-thumbnail" in command
 
 
+def test_can_omit_metadata_and_cover_flags(tmp_path) -> None:
+    command = build_download_command(
+        TrackRequest(1, "Song"),
+        tmp_path / "song.%(ext)s",
+        Path("ffmpeg"),
+        embed_metadata=False,
+        embed_thumbnail=False,
+    )
+
+    assert "--embed-metadata" not in command
+    assert "--embed-thumbnail" not in command
+
+
 @pytest.mark.parametrize("quality, expected", [("balanced", "5"), ("compact", "8")])
 def test_maps_supported_qualities_to_ffmpeg_values(tmp_path, quality, expected) -> None:
     command = build_download_command(

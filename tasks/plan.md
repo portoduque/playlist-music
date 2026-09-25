@@ -552,15 +552,15 @@ D1 estado validado e configuração padrão
 
 **Critérios de aceitação:**
 
-- [ ] Tags ativas mantêm a escrita local de título, artista e número; desativadas não chamam o escritor de metadados.
-- [ ] Capa ativa inclui somente a flag nativa de miniatura; desativada não a envia ao downloader.
-- [ ] Um MP3 concluído continua válido se a etapa opcional de tags ou capa falhar.
+- [x] Tags ativas mantêm a escrita local de título, artista e número; desativadas não chamam o escritor de metadados.
+- [x] Capa ativa inclui somente a flag nativa de miniatura; desativada não a envia ao downloader.
+- [x] Um MP3 concluído continua válido se a etapa opcional de tags ou capa falhar.
 
 **Testes:**
 
-- [ ] Testes de comando verificam flags presentes e ausentes.
-- [ ] Testes de serviço verificam que o escritor de tags só executa quando ativado.
-- [ ] `py -m pytest tests/test_commands.py tests/test_service.py tests/test_single_download.py` e Ruff passam.
+- [x] Testes de comando verificam flags presentes e ausentes.
+- [x] Testes de serviço verificam que o escritor de tags só executa quando ativado.
+- [x] `py -m pytest tests/test_commands.py tests/test_service.py tests/test_single_download.py` e Ruff passam.
 
 **Dependência:** D1.
 

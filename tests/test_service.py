@@ -142,3 +142,28 @@ def test_records_tag_issues_as_warnings_without_failing_audio(tmp_path) -> None:
     acquisition = result.queue.items[0].acquisition
     assert result.queue.items[0].status == "succeeded"
     assert acquisition and acquisition.warnings == ("Could not write audio tags.",)
+
+
+def test_skips_local_tag_writer_when_metadata_is_disabled(tmp_path) -> None:
+    playlist_folder = tmp_path / "playlist"
+    request = TrackRequest(1, "Song")
+
+    def acquire(item: TrackRequest) -> AcquisitionResult:
+        output = playlist_folder / "001 - Song.mp3"
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_bytes(b"audio")
+        return AcquisitionResult(item, True, output, "https://example.com/song", None)
+
+    result = create_playlist(
+        "playlist",
+        tmp_path,
+        ImportResult([request], []),
+        preflight=lambda: PreflightResult(True, Path("ffmpeg"), None),
+        acquire=acquire,
+        embed_metadata=False,
+        write_tags=lambda *_args, **_kwargs: (_ for _ in ()).throw(AssertionError("must not run")),
+    )
+
+    acquisition = result.queue.items[0].acquisition
+    assert result.queue.items[0].status == "succeeded"
+    assert acquisition and acquisition.warnings == ()

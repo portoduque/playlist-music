@@ -47,6 +47,29 @@ def test_reports_command_failure_with_limited_error_output(tmp_path) -> None:
     assert len(result.error or "") <= 1_000
 
 
+def test_passes_metadata_and_cover_preferences_to_the_command(tmp_path) -> None:
+    captured: list[str] = []
+
+    def runner(command, **_kwargs):
+        captured.extend(command)
+        (tmp_path / "song.mp3").write_bytes(b"audio")
+        return subprocess.CompletedProcess(command, 0, stdout="", stderr="")
+
+    result = run_single_download(
+        TrackRequest(1, "Song"),
+        tmp_path,
+        "song.mp3",
+        Path("ffmpeg"),
+        runner=runner,
+        embed_metadata=False,
+        embed_thumbnail=False,
+    )
+
+    assert result.succeeded is True
+    assert "--embed-metadata" not in captured
+    assert "--embed-thumbnail" not in captured
+
+
 def test_keeps_a_final_mp3_when_post_processing_returns_an_error(tmp_path) -> None:
     def runner(command, **_kwargs):
         (tmp_path / "song.mp3").write_bytes(b"audio")

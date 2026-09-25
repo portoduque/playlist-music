@@ -53,6 +53,8 @@ def build_download_command(
     ffmpeg_path: Path,
     *,
     quality: str = "recommended",
+    embed_metadata: bool = True,
+    embed_thumbnail: bool = True,
 ) -> list[str]:
     """Build, but do not execute, an MP3 extraction command."""
     try:
@@ -61,7 +63,7 @@ def build_download_command(
         raise ValueError(f"Unsupported quality: {quality}") from error
 
     source = request.url or f"ytsearch1:{request.query}"
-    return [
+    command = [
         sys.executable,
         "-m",
         "yt_dlp",
@@ -72,8 +74,12 @@ def build_download_command(
         "mp3",
         "--audio-quality",
         audio_quality,
-        "--embed-metadata",
-        "--embed-thumbnail",
+    ]
+    if embed_metadata:
+        command.append("--embed-metadata")
+    if embed_thumbnail:
+        command.append("--embed-thumbnail")
+    return command + [
         "--ffmpeg-location",
         str(ffmpeg_path),
         "--output",
@@ -93,12 +99,21 @@ def run_single_download(
     *,
     runner: Callable[..., subprocess.CompletedProcess[str]] = subprocess.run,
     quality: str = "recommended",
+    embed_metadata: bool = True,
+    embed_thumbnail: bool = True,
 ) -> AcquisitionResult:
     """Run one download and report success only for a confined final MP3."""
     output_root = output_root.resolve()
     final_path = allocate_output_path(output_root, filename)
     template = final_path.with_suffix(".%(ext)s")
-    command = build_download_command(request, template, ffmpeg_path, quality=quality)
+    command = build_download_command(
+        request,
+        template,
+        ffmpeg_path,
+        quality=quality,
+        embed_metadata=embed_metadata,
+        embed_thumbnail=embed_thumbnail,
+    )
     try:
         result = runner(
             command,

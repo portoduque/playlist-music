@@ -616,13 +616,13 @@
 
 **Acceptance criteria:**
 
-- [ ] Disabled tags skip the local metadata writer.
-- [ ] Disabled cover art omits only the thumbnail embedding flag.
-- [ ] Existing defaults retain the current command and completed MP3 behavior.
+- [x] Disabled tags skip the local metadata writer.
+- [x] Disabled cover art omits only the thumbnail embedding flag.
+- [x] Existing defaults retain the current command and completed MP3 behavior.
 
 **Verification:**
 
-- [ ] `py -m pytest tests/test_commands.py tests/test_service.py tests/test_single_download.py` and `py -m ruff check .`.
+- [x] `py -m pytest tests/test_commands.py tests/test_service.py tests/test_single_download.py` and `py -m ruff check .`.
 
 **Dependencies:** D1
 
