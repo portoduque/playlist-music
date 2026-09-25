@@ -320,7 +320,7 @@ Till I Collapse,Eminem,https://www.youtube.com/watch?v=...
 **Testes e verificação:**
 
 - [x] `py -m pytest` e `py -m ruff check .` passam.
-- [ ] Smoke manual com duas fontes autorizadas: verificar dois MP3s, tags em um player/editor e playlist `.m3u8` após mover a pasta.
+- [x] Smoke manual com duas fontes autorizadas: verificar dois MP3s, tags em um editor ID3 e playlist `.m3u8` após mover a pasta temporária.
 - [x] Revisão final confirma que nenhuma mídia de teste não licenciada entra no repositório.
 
 **Arquivos prováveis:** `README.md`, `tasks/plan.md`, `tasks/todo.md`.

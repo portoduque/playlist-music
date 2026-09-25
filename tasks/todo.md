@@ -481,7 +481,7 @@
 **Verification:**
 
 - [x] `py -m pytest` and `py -m ruff check .`.
-- [ ] Authorized manual smoke: two separate MP3s, tags in a player/editor, and `.m3u8` survives moving the folder.
+- [x] Authorized manual smoke: two separate MP3s, tags read with an ID3 editor, and `.m3u8` survives moving the temporary folder.
 - [x] Verify no unlicensed media fixture is committed.
 
 **Dependencies:** Task M5
@@ -490,6 +490,6 @@
 
 ## Checkpoint M-C: Extension complete
 
-- [ ] Every M task is complete with focused tests.
+- [x] Every M task is complete with focused tests.
 - [x] Full suite and Ruff pass.
-- [ ] Manual authorized smoke confirms a portable, organized playlist folder.
+- [x] Manual authorized smoke confirms a portable, organized playlist folder.
