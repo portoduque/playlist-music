@@ -115,6 +115,26 @@ def test_offers_the_generated_playlist_inside_the_output(tmp_path) -> None:
     assert actions.playlist == playlist.resolve()
 
 
+def test_offers_the_created_playlist_subfolder(tmp_path) -> None:
+    output = tmp_path / "library"
+    playlist_folder = output / "playlist"
+    playlist_folder.mkdir(parents=True)
+    playlist = playlist_folder / "playlist.m3u8"
+    playlist.write_text("#EXTM3U\n", encoding="utf-8")
+    result = ServiceResult(
+        True,
+        None,
+        QueueResult([]),
+        ArtifactPaths(playlist, playlist, playlist),
+        playlist_folder,
+    )
+
+    actions = completion_actions(result, output)
+
+    assert actions.folder == playlist_folder.resolve()
+    assert actions.playlist == playlist.resolve()
+
+
 def test_completion_reenables_creation_and_shows_safe_actions(tmp_path) -> None:
     output = tmp_path / "playlist"
     output.mkdir()

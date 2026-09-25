@@ -39,6 +39,23 @@ def allocate_output_path(root: Path, name: str) -> Path:
     return candidate
 
 
+def allocate_output_directory(root: Path, name: str) -> Path:
+    """Create a unique output directory confined to *root*."""
+    root = root.resolve()
+    root.mkdir(parents=True, exist_ok=True)
+    cleaned_name = safe_filename(name)
+    number = 1
+    while True:
+        suffix = "" if number == 1 else f" ({number})"
+        candidate = _confined_path(root, f"{cleaned_name}{suffix}")
+        try:
+            candidate.mkdir()
+        except FileExistsError:
+            number += 1
+        else:
+            return candidate
+
+
 def deduplicate_requests(requests: Iterable[TrackRequest]) -> DeduplicationResult:
     """Keep the first request for each case-insensitive query or URL."""
     unique_requests: list[TrackRequest] = []

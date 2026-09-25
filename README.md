@@ -38,7 +38,7 @@ json_result = parse_json_file(Path("minhas-musicas.json"))
 
 ### Preparação segura da saída
 
-O código sanitiza nomes para Windows, bloqueia componentes de caminho inseguros, mantém o arquivo calculado dentro da pasta selecionada, evita colisões com sufixos determinísticos e identifica duplicatas preservando a primeira ocorrência. Na execução unitária de uma faixa, só há sucesso depois que o MP3 final existe dentro dessa pasta; arquivos parciais não contam como concluídos e um arquivo existente não é sobrescrito.
+Cada criação gera uma subpasta própria dentro da pasta escolhida, usando o nome da playlist. O código sanitiza nomes para Windows, bloqueia componentes de caminho inseguros, evita colisões com sufixos determinísticos (`Nome`, `Nome (2)`) e identifica duplicatas preservando a primeira ocorrência. Na execução unitária de uma faixa, só há sucesso depois que o MP3 final existe dentro dessa subpasta; arquivos parciais não contam como concluídos e um arquivo existente não é sobrescrito.
 
 ### Pré-checagem, execução e fila interna
 
@@ -88,7 +88,7 @@ Esse comando instala as dependências atuais do projeto: `yt-dlp`, Mutagen, Pyte
 5. Clique em **Create playlist**. A janela continua utilizável enquanto o progresso é exibido.
 6. Ao terminar, leia o resumo e use **Open folder** ou **Open playlist** quando estiverem disponíveis.
 
-A pasta escolhida recebe os MP3s concluídos, `resultado.txt`, uma playlist `.m3u8` em UTF-8 e uma `.m3u` em UTF-8 com BOM. Os dois arquivos de playlist usam caminhos relativos; mova a pasta inteira para mantê-los reproduzíveis.
+A pasta escolhida recebe uma nova subpasta com o nome da playlist. Ela contém os MP3s concluídos, `resultado.txt`, uma playlist `.m3u8` em UTF-8 e uma `.m3u` em UTF-8 com BOM. Os dois arquivos de playlist usam caminhos relativos; mova essa subpasta inteira para mantê-los reproduzíveis.
 
 ## Solução de problemas
 

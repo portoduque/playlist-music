@@ -56,8 +56,8 @@ class CompletionActions:
 
 def completion_actions(result: ServiceResult, output_folder: Path | None) -> CompletionActions:
     """Summarize a completed run without exposing paths outside its output folder."""
-    folder = safe_output_path(output_folder, output_folder, directory=True)
-    playlist = _safe_playlist_path(result.artifacts, output_folder)
+    folder = safe_output_path(output_folder, result.output_folder or output_folder, directory=True)
+    playlist = _safe_playlist_path(result.artifacts, folder)
     return CompletionActions(_completion_message(result), folder, playlist)
 
 

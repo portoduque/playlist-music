@@ -216,14 +216,14 @@ Till I Collapse,Eminem,https://www.youtube.com/watch?v=...
 
 **Critérios de aceitação:**
 
-- [ ] Duas execuções com o mesmo nome não misturam nem sobrescrevem músicas.
-- [ ] Todos os MP3s, `.m3u`, `.m3u8` e relatório ficam na mesma subpasta.
-- [ ] Nome malicioso, reservado no Windows ou com traversal não escapa da raiz.
+- [x] Duas execuções com o mesmo nome não misturam nem sobrescrevem músicas.
+- [x] Todos os MP3s, `.m3u`, `.m3u8` e relatório ficam na mesma subpasta.
+- [x] Nome malicioso, reservado no Windows ou com traversal não escapa da raiz.
 
 **Testes:**
 
-- [ ] Caminho normal, Unicode, nomes reservados, traversal e colisões.
-- [ ] Integração de serviço com duas faixas falsas confirma arquivos separados e artefatos no diretório correto.
+- [x] Caminho normal, Unicode, nomes reservados, traversal e colisões.
+- [x] Integração de serviço com duas faixas falsas confirma arquivos separados e artefatos no diretório correto.
 
 **Arquivos prováveis:** `output.py`, `service.py`, `models.py`, `tests/test_output.py`, `tests/test_service.py`.
 

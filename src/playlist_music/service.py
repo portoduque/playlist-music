@@ -15,6 +15,7 @@ from playlist_music.models import (
     TrackRequest,
 )
 from playlist_music.queue import process_queue
+from playlist_music.output import allocate_output_directory
 
 
 @dataclass(frozen=True, slots=True)
@@ -25,6 +26,7 @@ class ServiceResult:
     message: str | None
     queue: QueueResult | None
     artifacts: ArtifactPaths | None
+    output_folder: Path | None = None
 
 
 MetadataWriter = Callable[[Path, str | None, str | None, str | None], MetadataResult]
@@ -50,13 +52,12 @@ def create_playlist(
     if not tools.ready or not tools.ffmpeg_path:
         return ServiceResult(False, tools.message or "Required tools are unavailable.", None, None)
 
-    output_root = output_root.resolve()
-    output_root.mkdir(parents=True, exist_ok=True)
+    output_folder = allocate_output_directory(output_root, playlist_name)
     if acquire is None:
         def acquire(request: TrackRequest) -> AcquisitionResult:
             return run_single_download(
                 request,
-                output_root,
+                output_folder,
                 f"{request.line_number:03d} - {request.query}.mp3",
                 tools.ffmpeg_path,
                 quality=quality,
@@ -65,5 +66,5 @@ def create_playlist(
     for item in queue.items:
         if item.status == "succeeded" and item.acquisition and item.acquisition.output_path:
             write_tags(item.acquisition.output_path, item.request.query, None, None)
-    artifacts = write_artifacts(output_root, playlist_name, queue)
-    return ServiceResult(True, None, queue, artifacts)
+    artifacts = write_artifacts(output_folder, playlist_name, queue)
+    return ServiceResult(True, None, queue, artifacts, output_folder)

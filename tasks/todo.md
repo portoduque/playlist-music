@@ -387,14 +387,14 @@
 
 **Acceptance criteria:**
 
-- [ ] Each run writes its MP3s, `.m3u`, `.m3u8`, and report into its own folder.
-- [ ] Name collisions use a suffix and never overwrite a prior run.
-- [ ] Traversal and reserved Windows names cannot escape the selected root.
+- [x] Each run writes its MP3s, `.m3u`, `.m3u8`, and report into its own folder.
+- [x] Name collisions use a suffix and never overwrite a prior run.
+- [x] Traversal and reserved Windows names cannot escape the selected root.
 
 **Verification:**
 
-- [ ] Focused output-path and service integration tests.
-- [ ] `py -m pytest` and `py -m ruff check .`.
+- [x] Focused output-path and service integration tests.
+- [x] `py -m pytest` and `py -m ruff check .`.
 
 **Dependencies:** Task M1
 
@@ -402,9 +402,9 @@
 
 ## Checkpoint M-A: Organized output boundary
 
-- [ ] M1 and M2 focused tests pass.
-- [ ] A fake two-track run creates two MP3 paths and all artifacts in one safe subfolder.
-- [ ] No generated path can escape the user-selected root.
+- [x] M1 and M2 focused tests pass.
+- [x] A fake two-track run creates two MP3 paths and all artifacts in one safe subfolder.
+- [x] No generated path can escape the user-selected root.
 
 ## Task M3: Request source metadata and cover through yt-dlp
 

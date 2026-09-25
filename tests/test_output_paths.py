@@ -1,7 +1,12 @@
 """Behavioral tests for safe output names and request deduplication."""
 
 from playlist_music.models import TrackRequest
-from playlist_music.output import allocate_output_path, deduplicate_requests, safe_filename
+from playlist_music.output import (
+    allocate_output_directory,
+    allocate_output_path,
+    deduplicate_requests,
+    safe_filename,
+)
 
 
 def test_sanitizes_windows_reserved_names_and_unsafe_characters() -> None:
@@ -29,6 +34,15 @@ def test_output_path_collisions_receive_deterministic_suffixes(tmp_path) -> None
     (tmp_path / "song (2).mp3").touch()
 
     assert allocate_output_path(tmp_path, "song.mp3").name == "song (3).mp3"
+
+
+def test_output_directories_are_confined_and_receive_collision_suffixes(tmp_path) -> None:
+    (tmp_path / "Minha Playlist").mkdir()
+
+    folder = allocate_output_directory(tmp_path, "../Minha Playlist")
+
+    assert folder == tmp_path / "Minha Playlist (2)"
+    assert folder.is_dir()
 
 
 def test_deduplicates_requests_while_preserving_the_first_occurrence() -> None:
