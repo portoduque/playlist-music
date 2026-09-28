@@ -4,8 +4,8 @@ from pathlib import Path
 
 from playlist_music.downloader import PreflightResult
 from playlist_music.metadata import MetadataResult
-from playlist_music.models import AcquisitionResult, ImportIssue, ImportResult, TrackRequest
-from playlist_music.service import create_playlist
+from playlist_music.models import AcquisitionResult, ImportIssue, ImportResult, QueueItemResult, QueueResult, TrackRequest
+from playlist_music.service import ServiceResult, create_playlist, retry_failed_playlist
 
 
 def test_creates_a_complete_folder_with_fake_dependencies(tmp_path) -> None:
@@ -192,3 +192,44 @@ def test_can_process_duplicate_requests_when_skipping_is_disabled(tmp_path) -> N
 
     assert [item.status for item in result.queue.items] == ["succeeded", "succeeded"]
     assert calls == requests
+
+
+def test_retries_only_failed_requests_in_the_existing_playlist_folder(tmp_path) -> None:
+    playlist_folder = tmp_path / "playlist"
+    playlist_folder.mkdir()
+    first = TrackRequest(1, "First")
+    failed = TrackRequest(2, "Retry me")
+    first_output = playlist_folder / "001 - First.mp3"
+    first_output.write_bytes(b"audio")
+    original = ServiceResult(
+        True,
+        None,
+        QueueResult(
+            [
+                QueueItemResult(first, "succeeded", AcquisitionResult(first, True, first_output, "source", None)),
+                QueueItemResult(failed, "failed", AcquisitionResult(failed, False, None, None, "Source failed.")),
+            ]
+        ),
+        None,
+        playlist_folder,
+    )
+    calls = []
+
+    def acquire(item: TrackRequest) -> AcquisitionResult:
+        calls.append(item)
+        output = playlist_folder / f"{item.line_number:03d} - Retry me.mp3"
+        output.write_bytes(b"audio")
+        return AcquisitionResult(item, True, output, "source", None)
+
+    result = retry_failed_playlist(
+        "playlist",
+        original,
+        preflight=lambda: PreflightResult(True, Path("ffmpeg"), None),
+        acquire=acquire,
+        write_tags=lambda *_args, **_kwargs: MetadataResult([]),
+    )
+
+    assert calls == [failed]
+    assert [item.status for item in result.queue.items] == ["succeeded", "succeeded"]
+    assert result.output_folder == playlist_folder
+    assert result.artifacts.m3u8.read_text(encoding="utf-8") == "#EXTM3U\n001 - First.mp3\n002 - Retry me.mp3\n"

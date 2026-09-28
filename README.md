@@ -10,7 +10,7 @@ O comando abaixo abre a tela local inicial:
 py -m playlist_music
 ```
 
-Ela permite informar o nome da playlist, colar consultas ou URLs, importar uma lista, escolher a pasta e a qualidade. Ao criar, o processamento local ocorre em segundo plano e a tela recebe atualizações de progresso sem ser manipulada pela thread de trabalho. No fim, ela informa quantas faixas foram concluídas, falharam, tiveram apenas avisos de metadados ou foram ignoradas como duplicadas e oferece abrir a pasta ou a playlist gerada quando os caminhos continuam válidos.
+Ela permite informar o nome da playlist, colar consultas ou URLs, importar uma lista, escolher a pasta e a qualidade. Ao criar, o processamento local ocorre em segundo plano e a tela mostra uma barra geral, a faixa em andamento e uma lista compacta dos resultados. Cada falha exibe o motivo e uma ação sugerida. No fim, ela informa quantas faixas foram concluídas, falharam, tiveram apenas avisos de metadados ou foram ignoradas como duplicadas; também permite repetir somente as falhas, abrir a pasta ou a playlist gerada quando os caminhos continuam válidos.
 
 O escopo planejado, a ordem de implementação e os critérios de aceite estão em [SPEC.md](SPEC.md), [tasks/plan.md](tasks/plan.md) e [tasks/todo.md](tasks/todo.md).
 
@@ -118,9 +118,9 @@ Esse comando instala as dependências atuais do projeto: `yt-dlp`, Mutagen, Pyte
 1. Abra o aplicativo com `py -m playlist_music`.
 2. Informe o nome da playlist e cole uma consulta ou URL HTTP(S) por linha — ou escolha **Import file** para usar `.txt`, `.csv`, `.m3u`, `.m3u8` ou `.json`. Para CSV, confira a prévia e os vínculos de coluna antes de confirmar.
 3. Confira a contagem de itens válidos e inválidos. Corrija os itens inválidos antes de criar a playlist.
-4. Escolha a pasta de saída, mantenha a qualidade **recommended** ou selecione **balanced** ou **compact** em **More options**.
-5. Clique em **Create playlist**. A janela continua utilizável enquanto o progresso é exibido.
-6. Ao terminar, leia o resumo e use **Open folder** ou **Open playlist** quando estiverem disponíveis. Se alguma faixa falhar, abra `resultado.txt` na pasta da playlist: a seção **FALHAS** informa o motivo de cada uma.
+4. Escolha a pasta de saída e mantenha a qualidade **recommended** ou selecione **balanced** ou **compact**.
+5. Clique em **Create playlist**. A janela mostra a faixa atual, uma barra de progresso geral e o resultado de cada item concluído.
+6. Ao terminar, leia a lista. Quando houver falhas, a coluna de detalhes mostra o motivo e o que fazer; use **Retry failed downloads** para tentar apenas esses itens novamente. **Open folder** e **Open playlist** ficam disponíveis quando os caminhos continuam válidos.
 
 A pasta escolhida recebe uma nova subpasta com o nome da playlist. Ela contém os MP3s concluídos, `resultado.txt`, uma playlist `.m3u8` em UTF-8 e uma `.m3u` em UTF-8 com BOM. Os dois arquivos de playlist usam caminhos relativos; mova essa subpasta inteira para mantê-los reproduzíveis.
 
@@ -132,7 +132,7 @@ A pasta escolhida recebe uma nova subpasta com o nome da playlist. Ela contém o
 | `yt-dlp version check failed.` | Reinstale as dependências com `py -m pip install -e ".[dev]"` e tente novamente. |
 | O CSV não deixa confirmar | Vincule pelo menos **Title** ou **URL** e não use a mesma coluna em mais de um campo. |
 | A contagem mostra itens inválidos | Corrija ou remova as linhas indicadas antes de criar; o aplicativo não inicia uma lista parcialmente inválida. |
-| Uma faixa falha | Abra `resultado.txt` na pasta da playlist. A seção **FALHAS** identifica a faixa e o motivo registrado; as outras continuam sendo processadas. |
+| Uma faixa falha | Leia o motivo e a ação sugerida na lista de progresso. Use **Retry failed downloads** depois de corrigir a causa; `resultado.txt` também registra as falhas. |
 | Nenhuma faixa é concluída | Revise `resultado.txt`, a disponibilidade da fonte e se ela é autorizada e sem DRM. |
 
 ## Verificação

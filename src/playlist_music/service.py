@@ -46,6 +46,7 @@ def create_playlist(
     acquire: Callable[[TrackRequest], AcquisitionResult] | None = None,
     write_tags: MetadataWriter = write_metadata,
     on_progress: Callable[[QueueProgress], None] | None = None,
+    existing_output_folder: Path | None = None,
 ) -> ServiceResult:
     """Create one playlist folder from normalized input without knowing about Tkinter."""
     if not playlist_name.strip():
@@ -56,7 +57,12 @@ def create_playlist(
     if not tools.ready or not tools.ffmpeg_path:
         return ServiceResult(False, tools.message or "Required tools are unavailable.", None, None)
 
-    output_folder = allocate_output_directory(output_root, playlist_name)
+    if existing_output_folder:
+        if not existing_output_folder.is_dir():
+            return ServiceResult(False, "Playlist output folder is no longer available.", None, None)
+        output_folder = existing_output_folder
+    else:
+        output_folder = allocate_output_directory(output_root, playlist_name)
     if acquire is None:
         def acquire(request: TrackRequest) -> AcquisitionResult:
             return run_single_download(
@@ -99,3 +105,42 @@ def create_playlist(
     queue = QueueResult(tagged_items)
     artifacts = write_artifacts(output_folder, playlist_name, queue)
     return ServiceResult(True, None, queue, artifacts, output_folder)
+
+
+def retry_failed_playlist(
+    playlist_name: str,
+    original: ServiceResult,
+    *,
+    quality: str = "recommended",
+    embed_metadata: bool = True,
+    embed_thumbnail: bool = True,
+    preflight: Callable[[], PreflightResult] = preflight_tools,
+    acquire: Callable[[TrackRequest], AcquisitionResult] | None = None,
+    write_tags: MetadataWriter = write_metadata,
+    on_progress: Callable[[QueueProgress], None] | None = None,
+) -> ServiceResult:
+    """Retry only failed items while preserving successful files and playlist order."""
+    if not original.started or not original.queue or not original.output_folder:
+        return ServiceResult(False, "There is no completed playlist to retry.", None, None)
+    failed = [item.request for item in original.queue.items if item.status == "failed"]
+    if not failed:
+        return ServiceResult(False, "There are no failed downloads to retry.", original.queue, original.artifacts, original.output_folder)
+    retry = create_playlist(
+        playlist_name,
+        original.output_folder.parent,
+        ImportResult(failed, []),
+        quality=quality,
+        embed_metadata=embed_metadata,
+        embed_thumbnail=embed_thumbnail,
+        preflight=preflight,
+        acquire=acquire,
+        write_tags=write_tags,
+        on_progress=on_progress,
+        existing_output_folder=original.output_folder,
+    )
+    if not retry.started or not retry.queue:
+        return retry
+    replacements = {item.request.line_number: item for item in retry.queue.items}
+    queue = QueueResult([replacements.get(item.request.line_number, item) for item in original.queue.items])
+    artifacts = write_artifacts(original.output_folder, playlist_name, queue)
+    return ServiceResult(True, None, queue, artifacts, original.output_folder)

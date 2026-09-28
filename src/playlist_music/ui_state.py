@@ -6,7 +6,7 @@ from pathlib import Path
 from playlist_music.artifacts import ArtifactPaths
 from playlist_music.downloader import AUDIO_QUALITY
 from playlist_music.imports import parse_csv_file, parse_pasted_text
-from playlist_music.models import CsvColumnMapping, ImportResult, QueueResult
+from playlist_music.models import CsvColumnMapping, ImportResult, QueueProgress, QueueResult
 from playlist_music.service import ServiceResult
 
 
@@ -123,6 +123,26 @@ def _with_failure_hint(message: str, failed: int) -> str:
     if not failed:
         return message
     return f"{message} See resultado.txt for the reason for each failed track."
+
+
+def progress_item_details(progress: QueueProgress) -> tuple[str, str]:
+    """Return a short, actionable label for one completed queue item."""
+    if progress.item.status == "succeeded":
+        return "Downloaded", "Ready in the playlist folder."
+    if progress.item.status == "duplicate":
+        return "Skipped", "A matching request was already processed."
+    raw_error = progress.item.acquisition.error if progress.item.acquisition else ""
+    error = raw_error.casefold()
+    if any(marker in error for marker in ("404", "not found", "unavailable", "private")):
+        action = "Source is unavailable. Use another authorized URL and try again."
+    elif "ffmpeg" in error:
+        action = "FFmpeg is unavailable. Reinstall the app dependencies and try again."
+    elif any(marker in error for marker in ("network", "connection", "timed out", "timeout")):
+        action = "Connection problem. Check your internet and try again."
+    else:
+        action = "Download could not finish. Check the source URL and try again."
+    reason = " ".join(raw_error.split())[:120] or "Unknown download error"
+    return "Failed", f"{reason} — {action}"
 
 
 def _safe_playlist_path(artifacts: ArtifactPaths | None, output_folder: Path | None) -> Path | None:

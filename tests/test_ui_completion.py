@@ -2,9 +2,9 @@
 
 from playlist_music.artifacts import ArtifactPaths
 from playlist_music.app import PlaylistMusicApp
-from playlist_music.models import AcquisitionResult, QueueItemResult, QueueResult, TrackRequest
+from playlist_music.models import AcquisitionResult, QueueItemResult, QueueProgress, QueueResult, TrackRequest
 from playlist_music.service import ServiceResult
-from playlist_music.ui_state import InputState, completion_actions
+from playlist_music.ui_state import InputState, completion_actions, progress_item_details
 
 
 class _Control:
@@ -41,6 +41,41 @@ class _Status:
         return self.value
 
 
+def test_describes_a_failed_download_and_next_step() -> None:
+    request = TrackRequest(2, "Song")
+    progress = QueueProgress(
+        2,
+        4,
+        QueueItemResult(
+            request,
+            "failed",
+            AcquisitionResult(request, False, None, None, "HTTP Error 404: Not Found"),
+        ),
+    )
+
+    status, detail = progress_item_details(progress)
+
+    assert status == "Failed"
+    assert detail == (
+        "HTTP Error 404: Not Found — Source is unavailable. "
+        "Use another authorized URL and try again."
+    )
+
+
+def test_describes_success_and_duplicate_progress_items() -> None:
+    request = TrackRequest(1, "Song")
+
+    success = QueueProgress(
+        1,
+        2,
+        QueueItemResult(request, "succeeded", AcquisitionResult(request, True, None, None, None)),
+    )
+    duplicate = QueueProgress(2, 2, QueueItemResult(request, "duplicate", None))
+
+    assert progress_item_details(success) == ("Downloaded", "Ready in the playlist folder.")
+    assert progress_item_details(duplicate) == ("Skipped", "A matching request was already processed.")
+
+
 def _completion_app(output) -> PlaylistMusicApp:
     app = object.__new__(PlaylistMusicApp)
     app.status = _Status()
@@ -48,9 +83,11 @@ def _completion_app(output) -> PlaylistMusicApp:
     app._active_output_folder = None
     app._folder_to_open = None
     app._playlist_to_open = None
+    app._last_result = None
     app.create_button = _Control()
     app.open_folder_button = _Control()
     app.open_playlist_button = _Control()
+    app.retry_button = _Control()
     app.actions_frame = _ActionsFrame()
     return app
 
@@ -188,3 +225,13 @@ def test_unexpected_error_reenables_creation(tmp_path) -> None:
 
     assert app.status.get() == "Unexpected failure"
     assert app.create_button.cget("state") == "normal"
+
+
+def test_offers_retry_when_the_completed_playlist_contains_a_failure(tmp_path) -> None:
+    app = _completion_app(tmp_path)
+    result = ServiceResult(True, None, QueueResult([_item("failed", 1)]), None, tmp_path)
+
+    app._show_completion(result)
+
+    assert app.retry_button.cget("state") == "normal"
+    assert app.actions_frame.visible is True
