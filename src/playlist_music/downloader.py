@@ -1,5 +1,6 @@
 """Preflight checks and safe command construction for yt-dlp."""
 
+import os
 import shutil
 import subprocess
 import sys
@@ -22,18 +23,31 @@ class PreflightResult:
     ready: bool
     ffmpeg_path: Path | None
     message: str | None
+    deno_path: Path | None = None
+
+
+def _find_deno(name: str) -> str | None:
+    """Find Deno on PATH or in the standard WinGet installation folder."""
+    if path := shutil.which(name):
+        return path
+    local_appdata = os.environ.get("LOCALAPPDATA")
+    if not local_appdata:
+        return None
+    packages = Path(local_appdata) / "Microsoft" / "WinGet" / "Packages"
+    return next((str(path) for path in packages.glob("DenoLand.Deno_*/deno.exe") if path.is_file()), None)
 
 
 def preflight_tools(
     ffmpeg_finder: Callable[[str], str | None] = shutil.which,
-    deno_finder: Callable[[str], str | None] = shutil.which,
+    deno_finder: Callable[[str], str | None] = _find_deno,
     runner: Callable[..., subprocess.CompletedProcess[str]] = subprocess.run,
 ) -> PreflightResult:
     """Confirm FFmpeg, Deno, and the installed yt-dlp module are ready."""
     ffmpeg = ffmpeg_finder("ffmpeg")
     if not ffmpeg:
         return PreflightResult(False, None, "FFmpeg was not found on PATH.")
-    if not deno_finder("deno"):
+    deno = deno_finder("deno")
+    if not deno:
         return PreflightResult(
             False,
             Path(ffmpeg),
@@ -51,7 +65,7 @@ def preflight_tools(
         return PreflightResult(False, Path(ffmpeg), "yt-dlp version check failed.")
     if result.returncode or not result.stdout.strip():
         return PreflightResult(False, Path(ffmpeg), "yt-dlp version check failed.")
-    return PreflightResult(True, Path(ffmpeg), None)
+    return PreflightResult(True, Path(ffmpeg), None, Path(deno))
 
 
 def build_download_command(
@@ -62,6 +76,7 @@ def build_download_command(
     quality: str = "recommended",
     embed_metadata: bool = True,
     embed_thumbnail: bool = True,
+    deno_path: Path | None = None,
 ) -> list[str]:
     """Build, but do not execute, an MP3 extraction command."""
     try:
@@ -82,7 +97,7 @@ def build_download_command(
         "--audio-quality",
         audio_quality,
         "--js-runtimes",
-        "deno",
+        f"deno:{deno_path}" if deno_path else "deno",
     ]
     if embed_metadata:
         command.append("--embed-metadata")
@@ -110,6 +125,7 @@ def run_single_download(
     quality: str = "recommended",
     embed_metadata: bool = True,
     embed_thumbnail: bool = True,
+    deno_path: Path | None = None,
 ) -> AcquisitionResult:
     """Run one download and report success only for a confined final MP3."""
     output_root = output_root.resolve()
@@ -122,6 +138,7 @@ def run_single_download(
         quality=quality,
         embed_metadata=embed_metadata,
         embed_thumbnail=embed_thumbnail,
+        deno_path=deno_path,
     )
     try:
         result = runner(

@@ -74,7 +74,7 @@ Os caminhos das playlists são relativos à própria pasta. Por isso, você pode
 
 ### Pré-checagem, execução e fila interna
 
-O código verifica se FFmpeg e Deno estão disponíveis e se o módulo instalado do `yt-dlp` responde à consulta de versão. Deno permite ao `yt-dlp` resolver os desafios JavaScript atuais do YouTube. Também monta comandos de extração MP3 com qualidade `recommended` (padrão), `balanced` ou `compact`; cada argumento permanece separado, sem shell. Já existe um executor interno para uma faixa, com timeout, erro limitado, proteção contra sobrescrita e validação do arquivo final. A fila interna processa itens em ordem, comunica progresso e continua após falhas; sucessos, falhas e duplicatas têm estados finais distintos.
+O código verifica se FFmpeg e Deno estão disponíveis e se o módulo instalado do `yt-dlp` responde à consulta de versão. Deno permite ao `yt-dlp` resolver os desafios JavaScript atuais do YouTube. No Windows, além do `PATH`, o aplicativo reconhece a instalação padrão do Deno pelo WinGet e informa a falha antes de iniciar a fila; assim, não deixa um progresso vazio parecendo travado. Também monta comandos de extração MP3 com qualidade `recommended` (padrão), `balanced` ou `compact`; cada argumento permanece separado, sem shell. Já existe um executor interno para uma faixa, com timeout, erro limitado, proteção contra sobrescrita e validação do arquivo final. A fila interna processa itens em ordem, comunica progresso e continua após falhas; sucessos, falhas e duplicatas têm estados finais distintos.
 
 ### Metadados internos
 
@@ -138,7 +138,7 @@ A pasta escolhida recebe uma nova subpasta com o nome da playlist. Ela contém o
 | Situação | O que fazer |
 | --- | --- |
 | `FFmpeg was not found on PATH.` | Instale o FFmpeg, adicione-o ao `PATH` e confirme com `ffmpeg -version`. |
-| `Deno was not found on PATH.` | Instale Deno com `winget install --id DenoLand.Deno --exact`, abra um novo PowerShell e confirme com `deno --version`. |
+| `Deno was not found on PATH.` | Instale Deno com `winget install --id DenoLand.Deno --exact` e confirme com `deno --version`. O app também reconhece a instalação padrão criada pelo WinGet; se a instalação foi personalizada, abra um novo PowerShell ou adicione o Deno ao `PATH`. |
 | `yt-dlp version check failed.` | Reinstale as dependências com `py -m pip install -e ".[dev]"` e tente novamente. |
 | O CSV não deixa confirmar | Vincule pelo menos **Title** ou **URL** e não use a mesma coluna em mais de um campo. |
 | A contagem mostra itens inválidos | Corrija ou remova as linhas indicadas antes de criar; o aplicativo não inicia uma lista parcialmente inválida. |

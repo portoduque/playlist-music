@@ -73,6 +73,7 @@ def create_playlist(
                 quality=quality,
                 embed_metadata=embed_metadata,
                 embed_thumbnail=embed_thumbnail,
+                deno_path=tools.deno_path,
             )
     queue = process_queue(
         imported.requests,

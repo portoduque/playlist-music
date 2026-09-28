@@ -25,6 +25,7 @@ def test_preflight_uses_the_current_python_and_detects_ffmpeg() -> None:
 
     assert result.ready is True
     assert result.ffmpeg_path == Path("C:/ffmpeg/ffmpeg.exe")
+    assert result.deno_path == Path("C:/deno/deno.exe")
     assert calls == [[sys.executable, "-m", "yt_dlp", "--version"]]
 
 
@@ -78,6 +79,17 @@ def test_builds_literal_arguments_for_queries_with_shell_characters(tmp_path) ->
     assert "--embed-metadata" in command
     assert "--embed-thumbnail" in command
     assert command[command.index("--js-runtimes") + 1] == "deno"
+
+
+def test_uses_the_discovered_deno_path_when_building_the_command(tmp_path) -> None:
+    command = build_download_command(
+        TrackRequest(1, "Song"),
+        tmp_path / "song.%(ext)s",
+        Path("ffmpeg"),
+        deno_path=Path("C:/deno/deno.exe"),
+    )
+
+    assert command[command.index("--js-runtimes") + 1] == "deno:C:\\deno\\deno.exe"
 
 
 def test_can_omit_metadata_and_cover_flags(tmp_path) -> None:

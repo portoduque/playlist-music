@@ -103,6 +103,7 @@ def _completion_app(output) -> PlaylistMusicApp:
     app.open_playlist_button = _Control()
     app.retry_button = _Control()
     app.actions_frame = _ActionsFrame()
+    app.progress_frame = _ActionsFrame()
     return app
 
 
@@ -239,6 +240,20 @@ def test_unexpected_error_reenables_creation(tmp_path) -> None:
 
     assert app.status.get() == "Unexpected failure"
     assert app.create_button.cget("state") == "normal"
+
+
+def test_hides_progress_when_preflight_blocks_playlist_creation(tmp_path) -> None:
+    app = _completion_app(tmp_path)
+    app.create_button.configure(state="disabled")
+    app.progress_frame.grid()
+    result = ServiceResult(False, "Deno was not found on PATH.", None, None)
+
+    app._show_completion(result)
+
+    assert app.status.get() == "Deno was not found on PATH."
+    assert app.progress_frame.visible is False
+    assert app.create_button.cget("state") == "normal"
+    assert app.actions_frame.visible is False
 
 
 def test_offers_retry_when_the_completed_playlist_contains_a_failure(tmp_path) -> None:

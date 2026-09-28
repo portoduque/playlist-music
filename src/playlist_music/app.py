@@ -382,6 +382,13 @@ class PlaylistMusicApp:
         return f"Downloading {completed + 1} of {total}: {request.query}"
 
     def _show_completion(self, result: ServiceResult) -> None:
+        if not result.started:
+            self.status.set(result.message or "Playlist creation could not start.")
+            if self.progress_frame:
+                self.progress_frame.grid_remove()
+            self.actions_frame.grid_remove()
+            self._enable_creation()
+            return
         self._last_result = result
         actions = completion_actions(result, self._active_output_folder or self.state.output_folder)
         self.status.set(actions.message)
@@ -399,6 +406,8 @@ class PlaylistMusicApp:
 
     def _show_error(self, message: str | None) -> None:
         self.status.set(message or "Playlist creation failed unexpectedly.")
+        if self.progress_frame:
+            self.progress_frame.grid_remove()
         self.actions_frame.grid_remove()
         self._enable_creation()
 
