@@ -4,6 +4,7 @@ import os
 import shutil
 import subprocess
 import sys
+import time
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
@@ -126,6 +127,7 @@ def run_single_download(
     embed_metadata: bool = True,
     embed_thumbnail: bool = True,
     deno_path: Path | None = None,
+    sleeper: Callable[[float], None] = time.sleep,
 ) -> AcquisitionResult:
     """Run one download and report success only for a confined final MP3."""
     output_root = output_root.resolve()
@@ -148,6 +150,15 @@ def run_single_download(
             text=True,
             timeout=120,
         )
+        if result.returncode and "HTTP Error 403" in result.stderr:
+            sleeper(2)
+            result = runner(
+                command,
+                capture_output=True,
+                check=False,
+                text=True,
+                timeout=120,
+            )
     except subprocess.TimeoutExpired:
         return AcquisitionResult(request, False, None, None, "Download timed out.")
     except OSError:

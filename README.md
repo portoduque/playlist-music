@@ -74,7 +74,7 @@ Os caminhos das playlists são relativos à própria pasta. Por isso, você pode
 
 ### Pré-checagem, execução e fila interna
 
-O código verifica se FFmpeg e Deno estão disponíveis e se o módulo instalado do `yt-dlp` responde à consulta de versão. Deno permite ao `yt-dlp` resolver os desafios JavaScript atuais do YouTube. No Windows, além do `PATH`, o aplicativo reconhece a instalação padrão do Deno pelo WinGet e informa a falha antes de iniciar a fila; assim, não deixa um progresso vazio parecendo travado. Também monta comandos de extração MP3 com qualidade `recommended` (padrão), `balanced` ou `compact`; cada argumento permanece separado, sem shell. Já existe um executor interno para uma faixa, com timeout, erro limitado, proteção contra sobrescrita e validação do arquivo final. A fila interna processa itens em ordem, comunica progresso e continua após falhas; sucessos, falhas e duplicatas têm estados finais distintos.
+O código verifica se FFmpeg e Deno estão disponíveis e se o módulo instalado do `yt-dlp` responde à consulta de versão. Deno permite ao `yt-dlp` resolver os desafios JavaScript atuais do YouTube. No Windows, além do `PATH`, o aplicativo reconhece a instalação padrão do Deno pelo WinGet e informa a falha antes de iniciar a fila; assim, não deixa um progresso vazio parecendo travado. Para um `HTTP 403` temporário, ele espera dois segundos e repete a faixa uma vez antes de registrá-la como falha. Também monta comandos de extração MP3 com qualidade `recommended` (padrão), `balanced` ou `compact`; cada argumento permanece separado, sem shell. Já existe um executor interno para uma faixa, com timeout, erro limitado, proteção contra sobrescrita e validação do arquivo final. A fila interna processa itens em ordem, comunica progresso e continua após falhas; sucessos, falhas e duplicatas têm estados finais distintos.
 
 ### Metadados internos
 
@@ -142,7 +142,7 @@ A pasta escolhida recebe uma nova subpasta com o nome da playlist. Ela contém o
 | `yt-dlp version check failed.` | Reinstale as dependências com `py -m pip install -e ".[dev]"` e tente novamente. |
 | O CSV não deixa confirmar | Vincule pelo menos **Title** ou **URL** e não use a mesma coluna em mais de um campo. |
 | A contagem mostra itens inválidos | Corrija ou remova as linhas indicadas antes de criar; o aplicativo não inicia uma lista parcialmente inválida. |
-| Uma faixa falha | Leia o motivo e a ação sugerida na lista de progresso. Use **Retry failed downloads** depois de corrigir a causa; `resultado.txt` também registra as falhas. |
+| Uma faixa falha | O app já repete uma vez os `HTTP 403` temporários. Se ainda falhar, leia o motivo e a ação sugerida; use **Retry failed downloads** depois de corrigir a causa. `resultado.txt` também registra as falhas. |
 | Nenhuma faixa é concluída | Revise `resultado.txt`, a disponibilidade da fonte e se ela é autorizada e sem DRM. |
 
 ## Verificação

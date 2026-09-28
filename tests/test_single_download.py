@@ -47,6 +47,31 @@ def test_reports_command_failure_with_limited_error_output(tmp_path) -> None:
     assert len(result.error or "") <= 1_000
 
 
+def test_retries_a_transient_http_403_once_before_marking_a_track_as_failed(tmp_path) -> None:
+    calls: list[list[str]] = []
+
+    def runner(command, **_kwargs):
+        calls.append(command)
+        if len(calls) == 1:
+            return subprocess.CompletedProcess(command, 1, stdout="", stderr="HTTP Error 403: Forbidden")
+        (tmp_path / "song.mp3").write_bytes(b"audio")
+        return subprocess.CompletedProcess(command, 0, stdout="", stderr="")
+
+    pauses: list[float] = []
+    result = run_single_download(
+        TrackRequest(1, "Song"),
+        tmp_path,
+        "song.mp3",
+        Path("ffmpeg"),
+        runner=runner,
+        sleeper=pauses.append,
+    )
+
+    assert result.succeeded is True
+    assert len(calls) == 2
+    assert pauses == [2]
+
+
 def test_passes_metadata_and_cover_preferences_to_the_command(tmp_path) -> None:
     captured: list[str] = []
 
