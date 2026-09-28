@@ -26,12 +26,19 @@ class PreflightResult:
 
 def preflight_tools(
     ffmpeg_finder: Callable[[str], str | None] = shutil.which,
+    deno_finder: Callable[[str], str | None] = shutil.which,
     runner: Callable[..., subprocess.CompletedProcess[str]] = subprocess.run,
 ) -> PreflightResult:
-    """Confirm FFmpeg exists and the installed yt-dlp module reports a version."""
+    """Confirm FFmpeg, Deno, and the installed yt-dlp module are ready."""
     ffmpeg = ffmpeg_finder("ffmpeg")
     if not ffmpeg:
         return PreflightResult(False, None, "FFmpeg was not found on PATH.")
+    if not deno_finder("deno"):
+        return PreflightResult(
+            False,
+            Path(ffmpeg),
+            "Deno was not found on PATH. Install Deno 2.3 or newer and restart Playlist Music.",
+        )
     try:
         result = runner(
             [sys.executable, "-m", "yt_dlp", "--version"],
@@ -74,6 +81,8 @@ def build_download_command(
         "mp3",
         "--audio-quality",
         audio_quality,
+        "--js-runtimes",
+        "deno",
     ]
     if embed_metadata:
         command.append("--embed-metadata")

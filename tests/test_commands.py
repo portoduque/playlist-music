@@ -17,7 +17,11 @@ def test_preflight_uses_the_current_python_and_detects_ffmpeg() -> None:
         calls.append(args)
         return subprocess.CompletedProcess(args, 0, stdout="2026.01.01\n", stderr="")
 
-    result = preflight_tools(ffmpeg_finder=lambda _name: "C:/ffmpeg/ffmpeg.exe", runner=runner)
+    result = preflight_tools(
+        ffmpeg_finder=lambda _name: "C:/ffmpeg/ffmpeg.exe",
+        deno_finder=lambda _name: "C:/deno/deno.exe",
+        runner=runner,
+    )
 
     assert result.ready is True
     assert result.ffmpeg_path == Path("C:/ffmpeg/ffmpeg.exe")
@@ -34,9 +38,21 @@ def test_preflight_reports_missing_ffmpeg_without_running_yt_dlp() -> None:
     assert result.message == "FFmpeg was not found on PATH."
 
 
+def test_preflight_reports_missing_deno_before_running_yt_dlp() -> None:
+    result = preflight_tools(
+        ffmpeg_finder=lambda _name: "ffmpeg",
+        deno_finder=lambda _name: None,
+        runner=lambda *_args, **_kwargs: pytest.fail("yt-dlp should not run"),
+    )
+
+    assert result.ready is False
+    assert result.message == "Deno was not found on PATH. Install Deno 2.3 or newer and restart Playlist Music."
+
+
 def test_preflight_reports_an_invalid_yt_dlp_version() -> None:
     result = preflight_tools(
         ffmpeg_finder=lambda _name: "ffmpeg",
+        deno_finder=lambda _name: "deno",
         runner=lambda args, **_kwargs: subprocess.CompletedProcess(args, 1, stdout="", stderr="bad"),
     )
 
@@ -61,6 +77,7 @@ def test_builds_literal_arguments_for_queries_with_shell_characters(tmp_path) ->
     assert command[command.index("--ffmpeg-location") + 1] == "C:\\ffmpeg\\ffmpeg.exe"
     assert "--embed-metadata" in command
     assert "--embed-thumbnail" in command
+    assert command[command.index("--js-runtimes") + 1] == "deno"
 
 
 def test_can_omit_metadata_and_cover_flags(tmp_path) -> None:

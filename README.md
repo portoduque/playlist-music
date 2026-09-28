@@ -74,7 +74,7 @@ Os caminhos das playlists são relativos à própria pasta. Por isso, você pode
 
 ### Pré-checagem, execução e fila interna
 
-O código verifica se o FFmpeg está disponível e se o módulo instalado do `yt-dlp` responde à consulta de versão. Também monta comandos de extração MP3 com qualidade `recommended` (padrão), `balanced` ou `compact`; cada argumento permanece separado, sem shell. Já existe um executor interno para uma faixa, com timeout, erro limitado, proteção contra sobrescrita e validação do arquivo final. A fila interna processa itens em ordem, comunica progresso e continua após falhas; sucessos, falhas e duplicatas têm estados finais distintos.
+O código verifica se FFmpeg e Deno estão disponíveis e se o módulo instalado do `yt-dlp` responde à consulta de versão. Deno permite ao `yt-dlp` resolver os desafios JavaScript atuais do YouTube. Também monta comandos de extração MP3 com qualidade `recommended` (padrão), `balanced` ou `compact`; cada argumento permanece separado, sem shell. Já existe um executor interno para uma faixa, com timeout, erro limitado, proteção contra sobrescrita e validação do arquivo final. A fila interna processa itens em ordem, comunica progresso e continua após falhas; sucessos, falhas e duplicatas têm estados finais distintos.
 
 ### Metadados internos
 
@@ -96,11 +96,19 @@ O fluxo pretendido é simples: informar ou importar uma lista, escolher a pasta 
 
 - Python 3.11 ou mais recente.
 - FFmpeg é necessário para a conversão/extração real para MP3 pelo fluxo headless.
+- Deno 2.3 ou mais recente é necessário para fontes do YouTube que exigem desafios JavaScript.
 
 Instale o FFmpeg pelo método indicado para seu sistema e confirme que ele está disponível no `PATH` antes de criar uma playlist:
 
 ```powershell
 ffmpeg -version
+```
+
+No Windows, instale o Deno gratuito e abra um novo PowerShell antes de iniciar o aplicativo:
+
+```powershell
+winget install --id DenoLand.Deno --exact
+deno --version
 ```
 
 ## Instalação para desenvolvimento
@@ -111,7 +119,7 @@ No diretório do repositório, instale o pacote em modo editável com as ferrame
 py -m pip install -e ".[dev]"
 ```
 
-Esse comando instala as dependências atuais do projeto: `yt-dlp`, Mutagen, Pytest e Ruff.
+Esse comando instala as dependências atuais do projeto: `yt-dlp` com os scripts EJS oficiais, Mutagen, Pytest e Ruff.
 
 ## Uso
 
@@ -130,6 +138,7 @@ A pasta escolhida recebe uma nova subpasta com o nome da playlist. Ela contém o
 | Situação | O que fazer |
 | --- | --- |
 | `FFmpeg was not found on PATH.` | Instale o FFmpeg, adicione-o ao `PATH` e confirme com `ffmpeg -version`. |
+| `Deno was not found on PATH.` | Instale Deno com `winget install --id DenoLand.Deno --exact`, abra um novo PowerShell e confirme com `deno --version`. |
 | `yt-dlp version check failed.` | Reinstale as dependências com `py -m pip install -e ".[dev]"` e tente novamente. |
 | O CSV não deixa confirmar | Vincule pelo menos **Title** ou **URL** e não use a mesma coluna em mais de um campo. |
 | A contagem mostra itens inválidos | Corrija ou remova as linhas indicadas antes de criar; o aplicativo não inicia uma lista parcialmente inválida. |
