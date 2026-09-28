@@ -141,7 +141,7 @@ def progress_item_details(progress: QueueProgress) -> tuple[str, str]:
         action = "Connection problem. Check your internet and try again."
     else:
         action = "Download could not finish. Check the source URL and try again."
-    reason = " ".join(raw_error.split())[:120] or "Unknown download error"
+    reason = " ".join(raw_error.split()) or "Unknown download error"
     return "Failed", f"{reason} — {action}"
 
 

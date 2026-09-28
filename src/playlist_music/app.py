@@ -31,6 +31,7 @@ class PlaylistMusicApp:
         self.status = tk.StringVar(value="Choose a playlist name, songs, and a folder.")
         self.progress_current = tk.StringVar()
         self.progress_summary = tk.StringVar()
+        self.progress_filter = tk.StringVar(value="All")
         self.worker = PlaylistWorker()
         self.advanced_frame: ttk.LabelFrame | None = None
         self.frame: ttk.Frame | None = None
@@ -43,6 +44,9 @@ class PlaylistMusicApp:
         self.progress_frame: ttk.LabelFrame | None = None
         self.progress_bar: ttk.Progressbar | None = None
         self.progress_tree: ttk.Treeview | None = None
+        self.details_text: tk.Text | None = None
+        self.copy_details_button: ttk.Button | None = None
+        self._progress_rows: list[tuple[str, str, str]] = []
         self._active_requests: list[TrackRequest] = []
         self.root.title("Playlist Music")
         self.root.minsize(620, 520)
@@ -101,8 +105,37 @@ class PlaylistMusicApp:
         self.progress_bar = ttk.Progressbar(self.progress_frame, mode="determinate", maximum=1)
         self.progress_bar.grid(row=1, pady=(6, 4), sticky="ew")
         ttk.Label(self.progress_frame, textvariable=self.progress_summary).grid(row=2, sticky="w")
+        progress_controls = ttk.Frame(self.progress_frame)
+        progress_controls.grid(row=3, pady=(8, 4), sticky="ew")
+        ttk.Label(progress_controls, text="Show").grid(row=0, column=0, sticky="w")
+        progress_filter = ttk.Combobox(
+            progress_controls,
+            textvariable=self.progress_filter,
+            values=("All", "Downloaded", "Failed", "Skipped"),
+            width=13,
+            state="readonly",
+        )
+        progress_filter.grid(row=0, column=1, padx=(6, 12), sticky="w")
+        progress_filter.bind("<<ComboboxSelected>>", self._set_progress_filter)
+        self.copy_details_button = ttk.Button(
+            progress_controls,
+            text="Copy details",
+            command=self._copy_selected_details,
+            state="disabled",
+        )
+        self.copy_details_button.grid(row=0, column=2, sticky="w")
+        self.retry_button = ttk.Button(
+            progress_controls,
+            text="Retry failed downloads",
+            command=self._retry_failed,
+            state="disabled",
+        )
+        self.retry_button.grid(row=0, column=3, padx=(8, 0), sticky="w")
+        tree_frame = ttk.Frame(self.progress_frame)
+        tree_frame.grid(row=4, sticky="nsew")
+        tree_frame.columnconfigure(0, weight=1)
         self.progress_tree = ttk.Treeview(
-            self.progress_frame,
+            tree_frame,
             columns=("track", "status", "detail"),
             show="headings",
             height=5,
@@ -112,8 +145,22 @@ class PlaylistMusicApp:
         self.progress_tree.heading("detail", text="Details")
         self.progress_tree.column("track", width=190, stretch=True)
         self.progress_tree.column("status", width=85, stretch=False)
-        self.progress_tree.column("detail", width=275, stretch=True)
-        self.progress_tree.grid(row=3, pady=(8, 0), sticky="ew")
+        self.progress_tree.column("detail", width=500, stretch=True)
+        self.progress_tree.grid(row=0, column=0, sticky="nsew")
+        self.progress_tree.bind("<<TreeviewSelect>>", self._show_selected_details)
+        vertical_scroll = ttk.Scrollbar(tree_frame, orient="vertical", command=self.progress_tree.yview)
+        vertical_scroll.grid(row=0, column=1, sticky="ns")
+        horizontal_scroll = ttk.Scrollbar(tree_frame, orient="horizontal", command=self.progress_tree.xview)
+        horizontal_scroll.grid(row=1, column=0, sticky="ew")
+        self.progress_tree.configure(
+            yscrollcommand=vertical_scroll.set,
+            xscrollcommand=horizontal_scroll.set,
+        )
+        ttk.Label(self.progress_frame, text="Full details for selected item").grid(
+            row=5, pady=(8, 0), sticky="w"
+        )
+        self.details_text = tk.Text(self.progress_frame, height=3, wrap="word", state="disabled")
+        self.details_text.grid(row=6, sticky="ew")
         self.progress_frame.grid_remove()
         self.actions_frame = ttk.Frame(frame)
         self.actions_frame.grid(row=16, pady=(12, 0), sticky="w")
@@ -125,13 +172,6 @@ class PlaylistMusicApp:
             self.actions_frame, text="Open playlist", command=self._open_playlist, state="disabled"
         )
         self.open_playlist_button.grid(row=0, column=1, padx=(8, 0))
-        self.retry_button = ttk.Button(
-            self.actions_frame,
-            text="Retry failed downloads",
-            command=self._retry_failed,
-            state="disabled",
-        )
-        self.retry_button.grid(row=0, column=2, padx=(8, 0))
         self.actions_frame.grid_remove()
 
     def _update_pasted_text(self, _event: tk.Event) -> None:
@@ -250,8 +290,10 @@ class PlaylistMusicApp:
             return
         self.progress_frame.grid()
         self.progress_bar.configure(maximum=max(total, 1), value=0)
-        for row in self.progress_tree.get_children():
-            self.progress_tree.delete(row)
+        self._progress_rows = []
+        self._render_progress_rows()
+        self._set_details_text("Select a completed item to view its full details.")
+        self.copy_details_button.configure(state="disabled")
         self.progress_summary.set(f"0 of {total} complete")
         self.progress_current.set(self._current_track_label(0, total))
         self.status.set("Playlist creation started.")
@@ -261,10 +303,51 @@ class PlaylistMusicApp:
             return
         status, detail = progress_item_details(progress)
         self.progress_bar.configure(value=progress.completed)
-        self.progress_tree.insert("", "end", values=(progress.item.request.query, status, detail))
+        self._progress_rows.append((progress.item.request.query, status, detail))
+        self._render_progress_rows()
         self.progress_summary.set(f"{progress.completed} of {progress.total} complete")
         self.progress_current.set(self._current_track_label(progress.completed, progress.total))
         self.status.set(f"{status}: {progress.item.request.query}")
+
+    def _set_progress_filter(self, _event: tk.Event) -> None:
+        self._render_progress_rows()
+
+    def _render_progress_rows(self) -> None:
+        if not self.progress_tree:
+            return
+        for row in self.progress_tree.get_children():
+            self.progress_tree.delete(row)
+        selected_filter = self.progress_filter.get()
+        for row in self._progress_rows:
+            if selected_filter == "All" or row[1] == selected_filter:
+                self.progress_tree.insert("", "end", values=row)
+
+    def _show_selected_details(self, _event: tk.Event) -> None:
+        if not self.progress_tree:
+            return
+        selected = self.progress_tree.selection()
+        if not selected:
+            return
+        track, status, detail = self.progress_tree.item(selected[0], "values")
+        self._set_details_text(f"Track: {track}\nStatus: {status}\n\n{detail}")
+        if self.copy_details_button:
+            self.copy_details_button.configure(state="normal")
+
+    def _set_details_text(self, text: str) -> None:
+        if not self.details_text:
+            return
+        self.details_text.configure(state="normal")
+        self.details_text.delete("1.0", "end")
+        self.details_text.insert("1.0", text)
+        self.details_text.configure(state="disabled")
+
+    def _copy_selected_details(self) -> None:
+        if not self.details_text:
+            return
+        details = self.details_text.get("1.0", "end-1c")
+        self.root.clipboard_clear()
+        self.root.clipboard_append(details)
+        self.status.set("Details copied to the clipboard.")
 
     def _retry_failed(self) -> None:
         if not self._last_result:
@@ -308,7 +391,7 @@ class PlaylistMusicApp:
         self.open_playlist_button.configure(state="normal" if actions.playlist else "disabled")
         failed = bool(result.queue and any(item.status == "failed" for item in result.queue.items))
         self.retry_button.configure(state="normal" if failed else "disabled")
-        if actions.folder or actions.playlist or failed:
+        if actions.folder or actions.playlist:
             self.actions_frame.grid()
         else:
             self.actions_frame.grid_remove()

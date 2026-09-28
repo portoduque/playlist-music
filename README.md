@@ -10,7 +10,7 @@ O comando abaixo abre a tela local inicial:
 py -m playlist_music
 ```
 
-Ela permite informar o nome da playlist, colar consultas ou URLs, importar uma lista, escolher a pasta e a qualidade. Ao criar, o processamento local ocorre em segundo plano e a tela mostra uma barra geral, a faixa em andamento e uma lista compacta dos resultados. Cada falha exibe o motivo e uma ação sugerida. No fim, ela informa quantas faixas foram concluídas, falharam, tiveram apenas avisos de metadados ou foram ignoradas como duplicadas; também permite repetir somente as falhas, abrir a pasta ou a playlist gerada quando os caminhos continuam válidos.
+Ela permite informar o nome da playlist, colar consultas ou URLs, importar uma lista, escolher a pasta e a qualidade. Ao criar, o processamento local ocorre em segundo plano e a tela mostra uma barra geral, a faixa em andamento e uma lista compacta dos resultados. A lista filtra por estado, possui rolagem, revela os detalhes completos da linha selecionada e permite copiá-los. Cada falha exibe o motivo e uma ação sugerida. No fim, ela informa quantas faixas foram concluídas, falharam, tiveram apenas avisos de metadados ou foram ignoradas como duplicadas; também permite repetir somente as falhas, abrir a pasta ou a playlist gerada quando os caminhos continuam válidos.
 
 O escopo planejado, a ordem de implementação e os critérios de aceite estão em [SPEC.md](SPEC.md), [tasks/plan.md](tasks/plan.md) e [tasks/todo.md](tasks/todo.md).
 
@@ -120,7 +120,8 @@ Esse comando instala as dependências atuais do projeto: `yt-dlp`, Mutagen, Pyte
 3. Confira a contagem de itens válidos e inválidos. Corrija os itens inválidos antes de criar a playlist.
 4. Escolha a pasta de saída e mantenha a qualidade **recommended** ou selecione **balanced** ou **compact**.
 5. Clique em **Create playlist**. A janela mostra a faixa atual, uma barra de progresso geral e o resultado de cada item concluído.
-6. Ao terminar, leia a lista. Quando houver falhas, a coluna de detalhes mostra o motivo e o que fazer; use **Retry failed downloads** para tentar apenas esses itens novamente. **Open folder** e **Open playlist** ficam disponíveis quando os caminhos continuam válidos.
+6. Use o seletor **Show** para filtrar a lista por estado. Selecione uma linha para ver o texto integral em **Full details for selected item** e use **Copy details** quando precisar compartilhar ou pesquisar o erro.
+7. Quando houver falhas, o botão **Retry failed downloads** fica habilitado após o processamento e tenta apenas esses itens novamente. **Open folder** e **Open playlist** ficam disponíveis quando os caminhos continuam válidos.
 
 A pasta escolhida recebe uma nova subpasta com o nome da playlist. Ela contém os MP3s concluídos, `resultado.txt`, uma playlist `.m3u8` em UTF-8 e uma `.m3u` em UTF-8 com BOM. Os dois arquivos de playlist usam caminhos relativos; mova essa subpasta inteira para mantê-los reproduzíveis.
 

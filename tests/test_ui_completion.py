@@ -62,6 +62,20 @@ def test_describes_a_failed_download_and_next_step() -> None:
     )
 
 
+def test_keeps_the_full_error_message_available_in_progress_details() -> None:
+    request = TrackRequest(1, "Song")
+    error = "Download command failed: " + "detail " * 30
+    progress = QueueProgress(
+        1,
+        1,
+        QueueItemResult(request, "failed", AcquisitionResult(request, False, None, None, error)),
+    )
+
+    _status, detail = progress_item_details(progress)
+
+    assert error in detail
+
+
 def test_describes_success_and_duplicate_progress_items() -> None:
     request = TrackRequest(1, "Song")
 
