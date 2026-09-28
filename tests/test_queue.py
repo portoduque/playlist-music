@@ -66,5 +66,19 @@ def test_marks_duplicate_without_calling_acquirer() -> None:
     assert result.items[1].acquisition is None
 
 
+def test_can_process_duplicates_when_skipping_is_disabled() -> None:
+    requests = [TrackRequest(1, "One"), TrackRequest(2, " one ")]
+    calls = []
+
+    result = process_queue(
+        requests,
+        lambda item: calls.append(item) or _success(item),
+        skip_duplicates=False,
+    )
+
+    assert [item.status for item in result.items] == ["succeeded", "succeeded"]
+    assert calls == requests
+
+
 def test_handles_an_empty_queue() -> None:
     assert process_queue([], _success).items == []

@@ -15,6 +15,8 @@ def process_queue(
     requests: Iterable[TrackRequest],
     acquire: Callable[[TrackRequest], AcquisitionResult],
     on_progress: Callable[[QueueProgress], None] | None = None,
+    *,
+    skip_duplicates: bool = True,
 ) -> QueueResult:
     """Acquire requests in order, continuing after failures and duplicates."""
     ordered_requests = list(requests)
@@ -24,7 +26,7 @@ def process_queue(
 
     for request in ordered_requests:
         key = (request.url or request.query).strip().casefold()
-        if key in seen:
+        if skip_duplicates and key in seen:
             item = QueueItemResult(request, "duplicate", None)
         else:
             seen.add(key)

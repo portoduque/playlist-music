@@ -634,13 +634,13 @@
 
 **Acceptance criteria:**
 
-- [ ] Default mode skips repeated normalized requests.
-- [ ] Disabled mode processes every request in input order.
-- [ ] File allocation remains safe in both modes.
+- [x] Default mode skips repeated normalized requests.
+- [x] Disabled mode processes every request in input order.
+- [x] File allocation remains safe in both modes.
 
 **Verification:**
 
-- [ ] `py -m pytest tests/test_queue.py tests/test_service.py` and `py -m ruff check .`.
+- [x] `py -m pytest tests/test_queue.py tests/test_service.py` and `py -m ruff check .`.
 
 **Dependencies:** D1
 
@@ -648,8 +648,8 @@
 
 ### Checkpoint D-A: Functional preferences
 
-- [ ] D1–D3 preserve existing defaults without network access.
-- [ ] Focused tests and Ruff pass.
+- [x] D1–D3 preserve existing defaults without network access.
+- [x] Focused tests and Ruff pass.
 
 ### Task D4: Build the intuitive More options panel
 

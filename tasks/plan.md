@@ -574,14 +574,14 @@ D1 estado validado e configuração padrão
 
 **Critérios de aceitação:**
 
-- [ ] Com a proteção ativa, a primeira solicitação é processada e as outras aparecem como duplicadas.
-- [ ] Com a proteção desativada, todas as solicitações são processadas na ordem original.
-- [ ] A escolha não altera validação de entrada nem nomes seguros de arquivo.
+- [x] Com a proteção ativa, a primeira solicitação é processada e as outras aparecem como duplicadas.
+- [x] Com a proteção desativada, todas as solicitações são processadas na ordem original.
+- [x] A escolha não altera validação de entrada nem nomes seguros de arquivo.
 
 **Testes:**
 
-- [ ] Testes de fila cobrem os dois modos sem rede.
-- [ ] `py -m pytest tests/test_queue.py tests/test_service.py` e Ruff passam.
+- [x] Testes de fila cobrem os dois modos sem rede.
+- [x] `py -m pytest tests/test_queue.py tests/test_service.py` e Ruff passam.
 
 **Dependência:** D1.
 
@@ -591,8 +591,8 @@ D1 estado validado e configuração padrão
 
 ### Checkpoint D-A — Preferências funcionais
 
-- [ ] D1–D3 preservam os padrões atuais quando o usuário não altera nada.
-- [ ] Testes focados passam sem rede e sem arquivos pessoais.
+- [x] D1–D3 preservam os padrões atuais quando o usuário não altera nada.
+- [x] Testes focados passam sem rede e sem arquivos pessoais.
 
 ### Task D4 — Construir o painel More options
 

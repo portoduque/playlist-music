@@ -41,6 +41,7 @@ def create_playlist(
     quality: str = "recommended",
     embed_metadata: bool = True,
     embed_thumbnail: bool = True,
+    skip_duplicates: bool = True,
     preflight: Callable[[], PreflightResult] = preflight_tools,
     acquire: Callable[[TrackRequest], AcquisitionResult] | None = None,
     write_tags: MetadataWriter = write_metadata,
@@ -67,7 +68,12 @@ def create_playlist(
                 embed_metadata=embed_metadata,
                 embed_thumbnail=embed_thumbnail,
             )
-    queue = process_queue(imported.requests, acquire, on_progress)
+    queue = process_queue(
+        imported.requests,
+        acquire,
+        on_progress,
+        skip_duplicates=skip_duplicates,
+    )
     tagged_items: list[QueueItemResult] = []
     for item in queue.items:
         if embed_metadata and item.status == "succeeded" and item.acquisition and item.acquisition.output_path:

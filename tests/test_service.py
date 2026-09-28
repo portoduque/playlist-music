@@ -167,3 +167,28 @@ def test_skips_local_tag_writer_when_metadata_is_disabled(tmp_path) -> None:
     acquisition = result.queue.items[0].acquisition
     assert result.queue.items[0].status == "succeeded"
     assert acquisition and acquisition.warnings == ()
+
+
+def test_can_process_duplicate_requests_when_skipping_is_disabled(tmp_path) -> None:
+    playlist_folder = tmp_path / "playlist"
+    requests = [TrackRequest(1, "Song"), TrackRequest(2, " song ")]
+    calls = []
+
+    def acquire(item: TrackRequest) -> AcquisitionResult:
+        calls.append(item)
+        output = playlist_folder / f"{item.line_number:03d} - Song.mp3"
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_bytes(b"audio")
+        return AcquisitionResult(item, True, output, "https://example.com/song", None)
+
+    result = create_playlist(
+        "playlist",
+        tmp_path,
+        ImportResult(requests, []),
+        preflight=lambda: PreflightResult(True, Path("ffmpeg"), None),
+        acquire=acquire,
+        skip_duplicates=False,
+    )
+
+    assert [item.status for item in result.queue.items] == ["succeeded", "succeeded"]
+    assert calls == requests
